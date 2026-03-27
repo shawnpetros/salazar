@@ -6,7 +6,7 @@
     {
       "id": "P0",
       "name": "Direction & Foundation",
-      "status": "in_progress",
+      "status": "complete",
       "features": [
         {
           "id": "P0-F1",
@@ -34,48 +34,48 @@
     {
       "id": "P1",
       "name": "Harness (Python Orchestrator)",
-      "status": "not_started",
+      "status": "complete",
       "features": [
         {
           "id": "P1-F1",
           "name": "Client Factory",
           "description": "claude-agent-sdk client with sandbox, filesystem scoping, bash security hook, Playwright MCP.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P1-F2",
           "name": "Planner Agent",
           "description": "Decomposes app_spec.md into feature_list.json with BDD scenarios.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P1-F3",
           "name": "Generator Agent",
           "description": "Builds one feature per session, commits after each, updates feature_list.json.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P1-F4",
           "name": "Evaluator Agent",
           "description": "Adversarial skeptic with Playwright tools and graded rubric scoring (min 7.0/10).",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P1-F5",
           "name": "Hard Validation Gates",
           "description": "tsc, eslint, npm build, npm test — must all pass before feature marked done.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P1-F6",
           "name": "Orchestration Loop",
           "description": "Main planner→generator→evaluator cycle with retry logic and dashboard push.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         }
       ]
@@ -83,27 +83,27 @@
     {
       "id": "P2",
       "name": "Dashboard (Next.js Monitor)",
-      "status": "not_started",
+      "status": "complete",
       "features": [
         {
           "id": "P2-F1",
           "name": "Ingest API Route",
           "description": "POST /api/ingest — receives harness updates, writes to Upstash Redis.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P2-F2",
           "name": "SSE Stream Route",
           "description": "GET /api/stream — polls Redis, pushes diffs to browser via Server-Sent Events.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         },
         {
           "id": "P2-F3",
           "name": "Dashboard UI",
           "description": "6 cards: status, feature progress, sprint info, commit feed, evaluator scores, cost tracker.",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": []
         }
       ]

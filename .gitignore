@@ -7,3 +7,6 @@ __pycache__/
 .venv/
 dist/
 .turbo/
+harness/logs/
+output/
+.vercel

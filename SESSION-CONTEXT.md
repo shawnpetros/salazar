@@ -1,25 +1,22 @@
 ## Status
 
-Project initialized. Scaffold created. Starting Phase 1 — dashboard build + harness core in parallel.
+Harness core and dashboard both built. Dashboard compiles clean. Harness modules all import. Ready for Vercel deployment + end-to-end testing.
 
 ## In-Flight
 
-- Creating project scaffold (CLAUDE.md, features.json, git init)
-- Next: dashboard app + harness Python structure
+- Dashboard needs Vercel link + Upstash Redis provisioning
+- Harness needs end-to-end test against a trivial spec before running on AIT spec
 
 ## Key Details
 
-- Harness uses `claude-agent-sdk>=0.1.0` (renamed from `claude-code-sdk`)
-- Dashboard deploys to Vercel with Upstash Redis for state
-- Harness pushes status to dashboard via POST webhook
-- Agent-ID standard based on JWT profile with agent-specific claims (AIT)
-- Research identified 8 active IETF drafts on agent identity — none adopted
+- `claude-agent-sdk==0.1.50` installed and verified in harness/.venv
+- Dashboard builds clean (Next.js 16, shadcn/ui, Upstash Redis)
+- App spec defines: JWT profile (AIT), TypeScript SDK, verification service, IETF-style spec doc
+- Working on `dev` branch, main is clean
 
 ## Next Steps
 
-1. Build and deploy monitoring dashboard
-2. Build harness core (client factory, security, orchestrator)
-3. Write agent prompts (planner, generator, evaluator)
-4. Write app_spec.md (AIT standard)
-5. Test harness on trivial spec
-6. Run harness on agent-id spec
+1. Deploy dashboard to Vercel (link, add Upstash, set INGEST_SECRET)
+2. Test harness end-to-end on trivial spec
+3. Run harness on AIT app_spec.md
+4. Human review of generated output
