@@ -121,6 +121,11 @@ export function Dashboard() {
               <StatusCard data={state.status} />
             </div>
 
+            {/* Timeline — full width, right after status */}
+            <div className="lg:col-span-12">
+              <TimelineCard data={state.status} events={state.timeline} />
+            </div>
+
             {/* Features — takes more space, it's the main event */}
             <div className="lg:col-span-7">
               <FeatureProgress data={state.features} />
@@ -132,17 +137,10 @@ export function Dashboard() {
               <CostTracker data={state.cost} />
             </div>
 
-            {/* Evaluator */}
+            {/* Evaluator + Commits on same row */}
             <div className="lg:col-span-5">
               <EvaluatorCard data={state.evaluator} />
             </div>
-
-            {/* Timeline — full width */}
-            <div className="lg:col-span-12">
-              <TimelineCard data={state.status} events={state.timeline} />
-            </div>
-
-            {/* Commits */}
             <div className="lg:col-span-7">
               <CommitFeed data={state.commits} />
             </div>
