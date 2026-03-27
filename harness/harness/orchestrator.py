@@ -158,11 +158,19 @@ async def run_orchestrator(app_spec_path: Path) -> None:
                 f"Implementing {feature_id}",
             )
 
+            # Determine complexity tier
+            complexity = feature.get("complexity", "moderate")
+            skip_evaluator = complexity in ("setup", "simple")
+            max_eval_retries = 0 if skip_evaluator else MAX_EVALUATOR_RETRIES
+
+            if skip_evaluator:
+                logger.info(f"[orchestrator] Feature {feature_id} is {complexity} — skipping evaluator")
+
             # Generator loop with validator retries
             evaluator_feedback = None
             feature_complete = False
 
-            for eval_attempt in range(MAX_EVALUATOR_RETRIES + 1):
+            for eval_attempt in range(max_eval_retries + 1):
                 # Run generator
                 await dashboard.push_phase_change(session.session_id, "generate", feature_name)
 
@@ -189,7 +197,6 @@ async def run_orchestrator(app_spec_path: Path) -> None:
                     )
 
                     if val_attempt < MAX_VALIDATOR_RETRIES - 1:
-                        # Re-run generator with validator feedback
                         failures_text = format_failures(results)
                         evaluator_feedback = f"VALIDATOR FAILURES:\n{failures_text}"
                         gen_result = await run_generator(feature, evaluator_feedback)
@@ -200,7 +207,20 @@ async def run_orchestrator(app_spec_path: Path) -> None:
                     logger.error(f"[orchestrator] Feature {feature_id}: validators failed after {MAX_VALIDATOR_RETRIES} attempts")
                     break
 
-                # Run evaluator
+                # Skip evaluator for setup/simple features — validators are enough
+                if skip_evaluator:
+                    feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
+                    logger.info(f"[orchestrator] Feature {feature_id} PASSED (validators only, {complexity})")
+                    feature_complete = True
+                    await push_timeline_event(
+                        session.session_id,
+                        f"{feature_id} passed (validators, {complexity})",
+                        feature_elapsed_ms,
+                    )
+                    await push_git_commits(session.session_id)
+                    break
+
+                # Run evaluator for moderate/complex features
                 await dashboard.push_phase_change(session.session_id, "evaluate", feature_name)
 
                 eval_result = await run_evaluator(feature)
@@ -215,7 +235,7 @@ async def run_orchestrator(app_spec_path: Path) -> None:
                 )
 
                 if eval_result["passed"]:
-                    feature_elapsed_ms = int((time.time() - feature_start_time) * 1000) if feature_start_time else 0
+                    feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
                     logger.info(f"[orchestrator] Feature {feature_id} PASSED (score: {eval_result['score']})")
                     feature_complete = True
                     await push_timeline_event(
@@ -228,7 +248,7 @@ async def run_orchestrator(app_spec_path: Path) -> None:
                 else:
                     logger.warning(
                         f"[orchestrator] Feature {feature_id} FAILED evaluation "
-                        f"(score: {eval_result['score']}, attempt {eval_attempt + 1}/{MAX_EVALUATOR_RETRIES + 1})"
+                        f"(score: {eval_result['score']}, attempt {eval_attempt + 1}/{max_eval_retries + 1})"
                     )
                     evaluator_feedback = eval_result["feedback"]
 

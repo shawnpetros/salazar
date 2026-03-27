@@ -54,7 +54,25 @@ def parse_args() -> argparse.Namespace:
         "--model",
         type=str,
         default="claude-sonnet-4-6",
-        help="Model to use for agent sessions (default: claude-sonnet-4-6)",
+        help="Default model for all agent roles (default: claude-sonnet-4-6)",
+    )
+    parser.add_argument(
+        "--model-planner",
+        type=str,
+        default=None,
+        help="Model for planner agent (overrides --model)",
+    )
+    parser.add_argument(
+        "--model-generator",
+        type=str,
+        default=None,
+        help="Model for generator agent (overrides --model)",
+    )
+    parser.add_argument(
+        "--model-evaluator",
+        type=str,
+        default=None,
+        help="Model for evaluator agent (overrides --model). Use opus for production runs.",
     )
     parser.add_argument(
         "--log-file",
@@ -93,9 +111,16 @@ def main() -> None:
         os.environ["DASHBOARD_SECRET"] = args.dashboard_secret
     if args.model:
         os.environ["HARNESS_MODEL"] = args.model
+    if args.model_planner:
+        os.environ["HARNESS_MODEL_PLANNER"] = args.model_planner
+    if args.model_generator:
+        os.environ["HARNESS_MODEL_GENERATOR"] = args.model_generator
+    if args.model_evaluator:
+        os.environ["HARNESS_MODEL_EVALUATOR"] = args.model_evaluator
 
+    from harness.client import get_model_for_role
     logger.info(f"Starting harness with spec: {args.spec}")
-    logger.info(f"Model: {os.environ.get('HARNESS_MODEL', 'claude-sonnet-4-6')}")
+    logger.info(f"Models — planner: {get_model_for_role('planner')}, generator: {get_model_for_role('generator')}, evaluator: {get_model_for_role('evaluator')}")
     logger.info(f"Log file: {log_file}")
     if args.dashboard_url:
         logger.info(f"Dashboard: {args.dashboard_url}")
