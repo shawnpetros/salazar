@@ -24,9 +24,9 @@ export function CostTracker({ data }: { data: CostData | null }) {
   }
 
   const agents = [
-    { label: "Plan", cost: data.byAgent.planner, color: "bg-violet-400" },
-    { label: "Gen", cost: data.byAgent.generator, color: "bg-sky-400" },
-    { label: "Eval", cost: data.byAgent.evaluator, color: "bg-amber-400" },
+    { label: "Plan", cost: data.byAgent.planner, color: "bg-[#cba6f7]" },
+    { label: "Gen", cost: data.byAgent.generator, color: "bg-[#89b4fa]" },
+    { label: "Eval", cost: data.byAgent.evaluator, color: "bg-[#f5c2e7]" },
   ];
 
   const totalCost = data.byAgent.planner + data.byAgent.generator + data.byAgent.evaluator;

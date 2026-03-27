@@ -6,21 +6,21 @@ import { Progress } from "@/components/ui/progress";
 import type { EvaluatorData } from "@/lib/types";
 
 function scoreColor(score: number): string {
-  if (score >= 7) return "text-emerald-400";
-  if (score >= 5) return "text-amber-400";
-  return "text-red-400";
+  if (score >= 7) return "text-[#a6e3a1]";
+  if (score >= 5) return "text-[#f9e2af]";
+  return "text-[#f38ba8]";
 }
 
 function scoreGlow(score: number): string {
-  if (score >= 7) return "drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]";
-  if (score >= 5) return "drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]";
-  return "drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]";
+  if (score >= 7) return "drop-shadow-[0_0_8px_rgba(166,227,161,0.3)]";
+  if (score >= 5) return "drop-shadow-[0_0_8px_rgba(249,226,175,0.3)]";
+  return "drop-shadow-[0_0_8px_rgba(243,139,168,0.3)]";
 }
 
 function barIndicator(score: number): string {
-  if (score >= 7) return "[&_[data-slot=progress-indicator]]:bg-emerald-500";
-  if (score >= 5) return "[&_[data-slot=progress-indicator]]:bg-amber-500";
-  return "[&_[data-slot=progress-indicator]]:bg-red-500";
+  if (score >= 7) return "[&_[data-slot=progress-indicator]]:bg-[#89b4fa]";
+  if (score >= 5) return "[&_[data-slot=progress-indicator]]:bg-[#f9e2af]";
+  return "[&_[data-slot=progress-indicator]]:bg-[#f38ba8]";
 }
 
 const dimensionLabels: Record<string, { label: string; icon: string }> = {

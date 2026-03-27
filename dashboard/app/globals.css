@@ -91,7 +91,7 @@
   --card-foreground: #cdd6f4;      /* Text */
   --popover: #313244;              /* Surface0 */
   --popover-foreground: #cdd6f4;   /* Text */
-  --primary: #94e2d5;              /* Teal */
+  --primary: #cba6f7;              /* Mauve */
   --primary-foreground: #1e1e2e;   /* Base */
   --secondary: #45475a;            /* Surface1 */
   --secondary-foreground: #cdd6f4; /* Text */
@@ -102,20 +102,20 @@
   --destructive: #f38ba8;          /* Red */
   --border: #45475a;               /* Surface1 */
   --input: #585b70;                /* Surface2 */
-  --ring: #94e2d5;                 /* Teal */
-  --chart-1: #94e2d5;              /* Teal */
+  --ring: #cba6f7;                 /* Mauve */
+  --chart-1: #f5c2e7;              /* Pink */
   --chart-2: #74c7ec;              /* Sapphire */
   --chart-3: #b4befe;              /* Lavender */
   --chart-4: #f5c2e7;              /* Pink */
   --chart-5: #fab387;              /* Peach */
   --sidebar: #181825;              /* Mantle */
   --sidebar-foreground: #cdd6f4;   /* Text */
-  --sidebar-primary: #94e2d5;      /* Teal */
+  --sidebar-primary: #cba6f7;      /* Mauve */
   --sidebar-primary-foreground: #cdd6f4;
   --sidebar-accent: #45475a;       /* Surface1 */
   --sidebar-accent-foreground: #cdd6f4;
   --sidebar-border: #313244;       /* Surface0 */
-  --sidebar-ring: #94e2d5;         /* Teal */
+  --sidebar-ring: #cba6f7;         /* Mauve */
 }
 
 @layer base {

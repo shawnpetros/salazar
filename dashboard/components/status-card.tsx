@@ -21,10 +21,10 @@ function formatElapsed(startedAt: string): string {
 }
 
 const stateConfig: Record<string, { color: string; glow: string }> = {
-  running: { color: "text-emerald-400", glow: "shadow-emerald-500/10" },
-  paused: { color: "text-amber-400", glow: "shadow-amber-500/10" },
-  complete: { color: "text-sky-400", glow: "shadow-sky-500/10" },
-  error: { color: "text-red-400", glow: "shadow-red-500/10" },
+  running: { color: "text-sky-400", glow: "shadow-sky-500/10" },
+  paused: { color: "text-[#f9e2af]", glow: "shadow-[#f9e2af]/10" },
+  complete: { color: "text-[#89b4fa]", glow: "shadow-[#89b4fa]/10" },
+  error: { color: "text-[#f38ba8]", glow: "shadow-[#f38ba8]/10" },
 };
 
 const phaseConfig: Record<string, { label: string; icon: string }> = {

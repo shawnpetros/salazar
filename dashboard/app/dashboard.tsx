@@ -157,15 +157,15 @@ export function Dashboard() {
 function PulsingDot() {
   return (
     <span className="relative flex h-2.5 w-2.5">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75" />
+      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-sky-500" />
     </span>
   );
 }
 
 function StatusPill({ state }: { state: string }) {
   const variants: Record<string, string> = {
-    running: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/5 shadow-sm",
+    running: "bg-sky-500/10 text-sky-400 border-sky-500/20 shadow-sky-500/5 shadow-sm",
     paused: "bg-amber-500/10 text-amber-400 border-amber-500/20",
     complete: "bg-sky-500/10 text-sky-400 border-sky-500/20",
     error: "bg-red-500/10 text-red-400 border-red-500/20",

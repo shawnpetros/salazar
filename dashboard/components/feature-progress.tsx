@@ -28,7 +28,7 @@ export function FeatureProgress({ data }: { data: FeaturesData | null }) {
           </div>
         </div>
         <div className="flex items-center gap-3 mt-2">
-          <Progress value={pct} className="flex-1 h-1.5 [&_[data-slot=progress-indicator]]:bg-emerald-500" />
+          <Progress value={pct} className="flex-1 h-1.5 [&_[data-slot=progress-indicator]]:bg-[#89b4fa]" />
           <span className="text-xs font-mono tabular-nums text-muted-foreground w-10 text-right">{pct}%</span>
         </div>
       </CardHeader>
@@ -38,11 +38,11 @@ export function FeatureProgress({ data }: { data: FeaturesData | null }) {
             {data.items.map((item) => (
               <div
                 key={item.id}
-                className={`flex items-center gap-2.5 text-[13px] py-1.5 px-2 rounded-md transition-colors ${item.passes ? "bg-emerald-500/5" : "hover:bg-muted/30"}`}
+                className={`flex items-center gap-2.5 text-[13px] py-1.5 px-2 rounded-md transition-colors ${item.passes ? "bg-[#a6e3a1]/5" : "hover:bg-muted/30"}`}
               >
                 {item.passes ? (
-                  <div className="h-4 w-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                    <svg className="h-2.5 w-2.5 text-emerald-400" viewBox="0 0 16 16" fill="none">
+                  <div className="h-4 w-4 rounded-full bg-[#a6e3a1]/20 flex items-center justify-center shrink-0">
+                    <svg className="h-2.5 w-2.5 text-[#a6e3a1]" viewBox="0 0 16 16" fill="none">
                       <path d="M13.25 4.75L6 12 2.75 8.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>

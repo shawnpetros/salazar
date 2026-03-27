@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SprintData } from "@/lib/types";
 
 const phaseDots: Record<string, string> = {
-  plan: "bg-violet-400",
-  generate: "bg-sky-400",
-  evaluate: "bg-amber-400",
-  validate: "bg-emerald-400",
+  plan: "bg-[#cba6f7]",
+  generate: "bg-[#89b4fa]",
+  evaluate: "bg-[#f9e2af]",
+  validate: "bg-[#a6e3a1]",
 };
 
 export function SprintInfo({ data }: { data: SprintData | null }) {
