@@ -49,7 +49,7 @@ export function FeatureProgress({ data }: { data: FeaturesData | null }) {
                 ) : (
                   <div className="h-4 w-4 rounded-full border border-border/50 shrink-0" />
                 )}
-                <span className={item.passes ? "text-foreground" : "text-muted-foreground"}>
+                <span className={item.passes ? "text-foreground" : "text-muted-foreground/50"}>
                   {item.name}
                 </span>
               </div>
