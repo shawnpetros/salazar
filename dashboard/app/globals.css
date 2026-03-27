@@ -83,51 +83,39 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Catppuccin Mocha */
+/* Catppuccin Mocha — using actual hex-derived colors */
 .dark {
-  /* Base: #1e1e2e, Mantle: #181825, Crust: #11111b */
-  --background: oklch(0.24 0.02 280);
-  --foreground: oklch(0.90 0.01 280);
-  /* Surface0: #313244 */
-  --card: oklch(0.30 0.02 280);
-  --card-foreground: oklch(0.90 0.01 280);
-  --popover: oklch(0.30 0.02 280);
-  --popover-foreground: oklch(0.90 0.01 280);
-  /* Green/Teal accent */
-  --primary: oklch(0.78 0.12 165);
-  --primary-foreground: oklch(0.20 0.02 280);
-  /* Surface1: #45475a */
-  --secondary: oklch(0.37 0.02 280);
-  --secondary-foreground: oklch(0.90 0.01 280);
-  /* Surface1 */
-  --muted: oklch(0.37 0.02 280);
-  /* Subtext0: #a6adc8 */
-  --muted-foreground: oklch(0.72 0.02 270);
-  /* Surface2: #585b70 */
-  --accent: oklch(0.43 0.02 275);
-  --accent-foreground: oklch(0.90 0.01 280);
-  /* Red: #f38ba8 */
-  --destructive: oklch(0.72 0.16 10);
-  /* Overlay0: #6c7086 */
-  --border: oklch(0.50 0.02 270 / 30%);
-  --input: oklch(0.50 0.02 270 / 25%);
-  /* Teal: #94e2d5 */
-  --ring: oklch(0.78 0.12 165);
-  /* Catppuccin accent palette */
-  --chart-1: oklch(0.78 0.12 165);  /* teal */
-  --chart-2: oklch(0.75 0.14 220);  /* sapphire */
-  --chart-3: oklch(0.72 0.16 280);  /* lavender */
-  --chart-4: oklch(0.70 0.15 330);  /* pink */
-  --chart-5: oklch(0.75 0.14 60);   /* peach */
-  /* Mantle: #181825 */
-  --sidebar: oklch(0.22 0.02 280);
-  --sidebar-foreground: oklch(0.90 0.01 280);
-  --sidebar-primary: oklch(0.78 0.12 165);
-  --sidebar-primary-foreground: oklch(0.90 0.01 280);
-  --sidebar-accent: oklch(0.37 0.02 280);
-  --sidebar-accent-foreground: oklch(0.90 0.01 280);
-  --sidebar-border: oklch(0.50 0.02 270 / 20%);
-  --sidebar-ring: oklch(0.78 0.12 165);
+  --background: #1e1e2e;           /* Base */
+  --foreground: #cdd6f4;           /* Text */
+  --card: #313244;                 /* Surface0 */
+  --card-foreground: #cdd6f4;      /* Text */
+  --popover: #313244;              /* Surface0 */
+  --popover-foreground: #cdd6f4;   /* Text */
+  --primary: #94e2d5;              /* Teal */
+  --primary-foreground: #1e1e2e;   /* Base */
+  --secondary: #45475a;            /* Surface1 */
+  --secondary-foreground: #cdd6f4; /* Text */
+  --muted: #45475a;                /* Surface1 */
+  --muted-foreground: #a6adc8;     /* Subtext0 */
+  --accent: #585b70;               /* Surface2 */
+  --accent-foreground: #cdd6f4;    /* Text */
+  --destructive: #f38ba8;          /* Red */
+  --border: #45475a;               /* Surface1 */
+  --input: #585b70;                /* Surface2 */
+  --ring: #94e2d5;                 /* Teal */
+  --chart-1: #94e2d5;              /* Teal */
+  --chart-2: #74c7ec;              /* Sapphire */
+  --chart-3: #b4befe;              /* Lavender */
+  --chart-4: #f5c2e7;              /* Pink */
+  --chart-5: #fab387;              /* Peach */
+  --sidebar: #181825;              /* Mantle */
+  --sidebar-foreground: #cdd6f4;   /* Text */
+  --sidebar-primary: #94e2d5;      /* Teal */
+  --sidebar-primary-foreground: #cdd6f4;
+  --sidebar-accent: #45475a;       /* Surface1 */
+  --sidebar-accent-foreground: #cdd6f4;
+  --sidebar-border: #313244;       /* Surface0 */
+  --sidebar-ring: #94e2d5;         /* Teal */
 }
 
 @layer base {
