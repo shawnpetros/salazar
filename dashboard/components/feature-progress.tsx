@@ -10,7 +10,7 @@ export function FeatureProgress({ data }: { data: FeaturesData | null }) {
     return (
       <Card className="border-dashed border-border/30 h-full">
         <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground/70">Features</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground/40">No feature data</p></CardContent>
+        <CardContent><p className="text-sm text-muted-foreground/70">No feature data</p></CardContent>
       </Card>
     );
   }
@@ -24,7 +24,7 @@ export function FeatureProgress({ data }: { data: FeaturesData | null }) {
           <CardTitle className="text-sm font-medium text-muted-foreground/70">Features</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold font-mono tabular-nums text-foreground">{data.passing}</span>
-            <span className="text-sm text-muted-foreground/50 font-mono">/ {data.total}</span>
+            <span className="text-sm text-muted-foreground/80 font-mono">/ {data.total}</span>
           </div>
         </div>
         <div className="flex items-center gap-3 mt-2">
@@ -49,7 +49,7 @@ export function FeatureProgress({ data }: { data: FeaturesData | null }) {
                 ) : (
                   <div className="h-4 w-4 rounded-full border border-border/50 shrink-0" />
                 )}
-                <span className={item.passes ? "text-foreground/90" : "text-muted-foreground/60"}>
+                <span className={item.passes ? "text-foreground" : "text-muted-foreground"}>
                   {item.name}
                 </span>
               </div>

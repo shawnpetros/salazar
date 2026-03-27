@@ -48,7 +48,7 @@ export function StatusCard({ data }: { data: SessionStatus | null }) {
     return (
       <Card className="border-dashed border-border/30">
         <CardContent className="py-8">
-          <p className="text-sm text-muted-foreground/50 text-center">Waiting for status...</p>
+          <p className="text-sm text-muted-foreground/80 text-center">Waiting for status...</p>
         </CardContent>
       </Card>
     );
@@ -77,13 +77,13 @@ export function StatusCard({ data }: { data: SessionStatus | null }) {
           <div className="flex items-center gap-6">
             {data.currentFeature && (
               <div className="flex flex-col items-end">
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Feature</span>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/80">Feature</span>
                 <span className="text-sm font-medium truncate max-w-56">{data.currentFeature}</span>
               </div>
             )}
             {data.startedAt && (
               <div className="flex flex-col items-end">
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Elapsed</span>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/80">Elapsed</span>
                 <span className="text-sm font-mono tabular-nums text-foreground/80">{elapsed}</span>
               </div>
             )}

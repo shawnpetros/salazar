@@ -15,7 +15,7 @@ export function SprintInfo({ data }: { data: SprintData | null }) {
     return (
       <Card className="border-dashed border-border/30">
         <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground/70">Sprint</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground/40">No sprint data</p></CardContent>
+        <CardContent><p className="text-sm text-muted-foreground/70">No sprint data</p></CardContent>
       </Card>
     );
   }
@@ -25,7 +25,7 @@ export function SprintInfo({ data }: { data: SprintData | null }) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground/70">Sprint</CardTitle>
-          <span className="text-xs font-mono text-muted-foreground/50 bg-muted/30 px-2 py-0.5 rounded">
+          <span className="text-xs font-mono text-muted-foreground/80 bg-muted/30 px-2 py-0.5 rounded">
             #{data.iteration}
           </span>
         </div>
@@ -37,12 +37,12 @@ export function SprintInfo({ data }: { data: SprintData | null }) {
             <span className="text-sm font-medium capitalize">{data.phase}</span>
           </div>
           <div>
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">Feature</span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground/80">Feature</span>
             <p className="text-sm font-medium mt-0.5 leading-snug">{data.featureName}</p>
           </div>
           {data.goal && (
             <div>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">Goal</span>
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/80">Goal</span>
               <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{data.goal}</p>
             </div>
           )}

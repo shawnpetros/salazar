@@ -37,7 +37,7 @@ export function EvaluatorCard({ data }: { data: EvaluatorData | null }) {
     return (
       <Card className="border-dashed border-border/30 h-full">
         <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground/70">Evaluator</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground/40">No evaluation data</p></CardContent>
+        <CardContent><p className="text-sm text-muted-foreground/70">No evaluation data</p></CardContent>
       </Card>
     );
   }
@@ -49,7 +49,7 @@ export function EvaluatorCard({ data }: { data: EvaluatorData | null }) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground/70">Evaluator</CardTitle>
-          <span className="text-xs font-mono text-muted-foreground/50">
+          <span className="text-xs font-mono text-muted-foreground/80">
             {Math.round(data.passRate * 100)}% pass rate
           </span>
         </div>
@@ -61,7 +61,7 @@ export function EvaluatorCard({ data }: { data: EvaluatorData | null }) {
             <span className={`text-5xl font-bold font-mono tabular-nums ${scoreColor(data.lastScore)} ${scoreGlow(data.lastScore)}`}>
               {data.lastScore.toFixed(1)}
             </span>
-            <span className="text-lg text-muted-foreground/40 font-mono">/10</span>
+            <span className="text-lg text-muted-foreground/70 font-mono">/10</span>
           </div>
 
           {/* Dimension bars */}
@@ -71,8 +71,8 @@ export function EvaluatorCard({ data }: { data: EvaluatorData | null }) {
               return (
                 <div key={key} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground/60">{dim.label}</span>
-                    <span className="text-[11px] font-mono tabular-nums text-muted-foreground/40">{value.toFixed(1)}</span>
+                    <span className="text-[11px] text-muted-foreground/80">{dim.label}</span>
+                    <span className="text-[11px] font-mono tabular-nums text-muted-foreground/70">{value.toFixed(1)}</span>
                   </div>
                   <Progress value={value * 10} className={`h-1 ${barIndicator(value)}`} />
                 </div>

@@ -18,7 +18,7 @@ export function CostTracker({ data }: { data: CostData | null }) {
     return (
       <Card className="border-dashed border-border/30">
         <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground/70">Cost</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground/40">No cost data</p></CardContent>
+        <CardContent><p className="text-sm text-muted-foreground/70">No cost data</p></CardContent>
       </Card>
     );
   }
@@ -37,9 +37,9 @@ export function CostTracker({ data }: { data: CostData | null }) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground/70">Cost</CardTitle>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-muted-foreground/40 font-mono">{formatTokens(data.inputTokens)} in</span>
+            <span className="text-[11px] text-muted-foreground/70 font-mono">{formatTokens(data.inputTokens)} in</span>
             <span className="text-muted-foreground/20">/</span>
-            <span className="text-[11px] text-muted-foreground/40 font-mono">{formatTokens(data.outputTokens)} out</span>
+            <span className="text-[11px] text-muted-foreground/70 font-mono">{formatTokens(data.outputTokens)} out</span>
           </div>
         </div>
       </CardHeader>
@@ -65,7 +65,7 @@ export function CostTracker({ data }: { data: CostData | null }) {
             {agents.map((a) => (
               <div key={a.label} className="flex items-center gap-1.5">
                 <span className={`h-2 w-2 rounded-full ${a.color}`} />
-                <span className="text-[11px] text-muted-foreground/50">{a.label}</span>
+                <span className="text-[11px] text-muted-foreground/80">{a.label}</span>
                 <span className="text-[11px] font-mono tabular-nums text-muted-foreground/70">{formatCost(a.cost)}</span>
               </div>
             ))}

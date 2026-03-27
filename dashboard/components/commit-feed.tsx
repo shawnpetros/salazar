@@ -20,7 +20,7 @@ export function CommitFeed({ data }: { data: CommitEntry[] | null }) {
     return (
       <Card className="border-dashed border-border/30 h-full">
         <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground/70">Commits</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground/40">No commits yet</p></CardContent>
+        <CardContent><p className="text-sm text-muted-foreground/70">No commits yet</p></CardContent>
       </Card>
     );
   }
@@ -30,7 +30,7 @@ export function CommitFeed({ data }: { data: CommitEntry[] | null }) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground/70">Commits</CardTitle>
-          <span className="text-[11px] font-mono text-muted-foreground/40">{data.length} recent</span>
+          <span className="text-[11px] font-mono text-muted-foreground/70">{data.length} recent</span>
         </div>
       </CardHeader>
       <CardContent>
@@ -52,12 +52,12 @@ export function CommitFeed({ data }: { data: CommitEntry[] | null }) {
                     <code className="text-[11px] font-mono text-primary/70 bg-primary/5 px-1.5 py-0.5 rounded">
                       {commit.sha.slice(0, 7)}
                     </code>
-                    <span className="text-[11px] text-muted-foreground/40">
+                    <span className="text-[11px] text-muted-foreground/70">
                       {relativeTime(commit.timestamp)}
                     </span>
                   </div>
                   <p className="text-[13px] mt-1 leading-snug text-foreground/80 truncate">{commit.message}</p>
-                  <span className="text-[11px] text-muted-foreground/30 mt-0.5">
+                  <span className="text-[11px] text-muted-foreground/60 mt-0.5">
                     {commit.filesChanged} file{commit.filesChanged !== 1 ? "s" : ""} changed
                   </span>
                 </div>
