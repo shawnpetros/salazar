@@ -5,8 +5,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { CommitEntry } from "@/lib/types";
 
 function relativeTime(timestamp: string): string {
-  const now = Date.now();
+  if (!timestamp) return "";
   const then = new Date(timestamp).getTime();
+  if (isNaN(then)) return "";
+  const now = Date.now();
   const diff = Math.max(0, Math.floor((now - then) / 1000));
 
   if (diff < 60) return `${diff}s ago`;
