@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useCallback } from "react";
+import { useEffect, useReducer, useCallback, useState } from "react";
 import type { DashboardState } from "@/lib/types";
 import { EMPTY_STATE } from "@/lib/types";
 import { StatusCard } from "@/components/status-card";
@@ -11,6 +11,7 @@ import { EvaluatorCard } from "@/components/evaluator-card";
 import { CostTracker } from "@/components/cost-tracker";
 import { TimelineCard } from "@/components/timeline-card";
 import { SpecCard } from "@/components/spec-card";
+import { HistoryView } from "@/components/history-view";
 
 type Action =
   | { type: "SET_STATE"; payload: DashboardState }
@@ -68,6 +69,7 @@ export function Dashboard() {
     };
   }, []);
 
+  const [view, setView] = useState<"live" | "history">("live");
   const hasSession = state.sessionId !== null;
   const isLive = state.status?.state === "running";
 
@@ -95,6 +97,16 @@ export function Dashboard() {
             )}
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setView(view === "live" ? "history" : "live")}
+              className={`text-[11px] font-mono px-2.5 py-1 rounded-md border transition-colors ${
+                view === "history"
+                  ? "bg-[#cba6f7]/10 text-[#cba6f7] border-[#cba6f7]/20"
+                  : "text-muted-foreground/70 border-border/50 hover:text-foreground hover:border-border"
+              }`}
+            >
+              history
+            </button>
             {isLive && <PulsingDot />}
             {state.status && <StatusPill state={state.status.state} />}
           </div>
@@ -103,7 +115,9 @@ export function Dashboard() {
 
       {/* Main content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
-        {!hasSession ? (
+        {view === "history" ? (
+          <HistoryView onBack={() => setView("live")} />
+        ) : !hasSession ? (
           <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
             <div className="h-16 w-16 rounded-2xl bg-muted/30 border border-border/50 flex items-center justify-center">
               <svg className="h-8 w-8 text-muted-foreground/50 animate-pulse" viewBox="0 0 24 24" fill="none">
