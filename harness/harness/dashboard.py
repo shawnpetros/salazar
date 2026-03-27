@@ -8,10 +8,15 @@ import httpx
 
 logger = logging.getLogger("harness.dashboard")
 
-DASHBOARD_URL = os.environ.get("DASHBOARD_URL", "")
-INGEST_SECRET = os.environ.get("DASHBOARD_SECRET", "")
-
 _client: httpx.AsyncClient | None = None
+
+
+def _get_url() -> str:
+    return os.environ.get("DASHBOARD_URL", "")
+
+
+def _get_secret() -> str:
+    return os.environ.get("DASHBOARD_SECRET", "")
 
 
 def _get_client() -> httpx.AsyncClient:
@@ -23,20 +28,21 @@ def _get_client() -> httpx.AsyncClient:
 
 async def push_status(session_id: str, update_type: str, payload: dict[str, Any]) -> None:
     """Push a status update to the dashboard. Fire-and-forget — failures are logged, not raised."""
-    if not DASHBOARD_URL:
+    dashboard_url = _get_url()
+    if not dashboard_url:
         logger.debug("[dashboard] No DASHBOARD_URL configured, skipping push")
         return
 
     try:
         client = _get_client()
         resp = await client.post(
-            f"{DASHBOARD_URL}/api/ingest",
+            f"{dashboard_url}/api/ingest",
             json={
                 "sessionId": session_id,
                 "type": update_type,
                 "payload": payload,
             },
-            headers={"Authorization": f"Bearer {INGEST_SECRET}"},
+            headers={"Authorization": f"Bearer {_get_secret()}"},
         )
         if resp.status_code != 200:
             logger.warning(f"[dashboard] Push failed: {resp.status_code} {resp.text}")
