@@ -96,7 +96,7 @@
   --secondary: #45475a;            /* Surface1 */
   --secondary-foreground: #cdd6f4; /* Text */
   --muted: #45475a;                /* Surface1 */
-  --muted-foreground: #a6adc8;     /* Subtext0 */
+  --muted-foreground: #bac2de;     /* Subtext1 — better contrast */
   --accent: #585b70;               /* Surface2 */
   --accent-foreground: #cdd6f4;    /* Text */
   --destructive: #f38ba8;          /* Red */

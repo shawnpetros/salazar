@@ -57,7 +57,8 @@ export function Dashboard() {
     };
 
     es.onerror = () => {
-      console.error("[dashboard] SSE error, will auto-reconnect");
+      // Expected: SSE stream closes after 55s, EventSource auto-reconnects
+      console.log("[dashboard] SSE reconnecting...");
     };
 
     return () => {
