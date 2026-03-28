@@ -1,3 +1,7 @@
+"use client";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactMarkdown from "react-markdown";
 import type { SpecData } from "@/lib/types";
 
 export function SpecCard({ data }: { data: SpecData | null }) {
@@ -8,9 +12,28 @@ export function SpecCard({ data }: { data: SpecData | null }) {
       <h2 className="text-lg font-bold text-[#cba6f7] leading-tight">
         {data.name}
       </h2>
-      <p className="text-sm text-[#9399b2] mt-0.5 leading-snug">
-        {data.description}
-      </p>
+      {data.description && (
+        <ScrollArea className="h-20 mt-2 overflow-y-auto">
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => <p className="text-sm text-[#9399b2] leading-relaxed my-1">{children}</p>,
+              strong: ({ children }) => <span className="text-[#cdd6f4] font-semibold">{children}</span>,
+              a: ({ href, children }) => (
+                <a href={href} target="_blank" rel="noopener noreferrer" className="text-[#89b4fa] hover:underline">
+                  {children}
+                </a>
+              ),
+              code: ({ children }) => (
+                <code className="text-[#f5c2e7] text-xs bg-[#313244] px-1.5 py-0.5 rounded">{children}</code>
+              ),
+              ul: ({ children }) => <ul className="text-sm text-[#9399b2] my-1 pl-4 list-disc">{children}</ul>,
+              li: ({ children }) => <li className="text-sm text-[#9399b2] my-0.5">{children}</li>,
+            }}
+          >
+            {data.description}
+          </ReactMarkdown>
+        </ScrollArea>
+      )}
     </div>
   );
 }

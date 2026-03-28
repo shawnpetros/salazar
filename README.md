@@ -1,8 +1,10 @@
-# Agent-ID: Autonomous Coding Harness + Live Dashboard
+# Long-Running Harness
 
-An autonomous coding orchestrator that builds software end-to-end using a planner/generator/evaluator agent loop — inspired by [Anthropic's research on long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents). Paired with a real-time monitoring dashboard deployed on Vercel.
+An autonomous coding orchestrator that builds software end-to-end from a markdown spec — no human code required. Planner/generator/evaluator agent loop using Claude via `claude-agent-sdk`, with a real-time monitoring dashboard and an Ink terminal UI.
 
-**What it builds:** The [Agent Identity Token (AIT)](harness/app_spec.md) — an open standard for AI agent identity and trust attestation. Think Okta/PAM for non-human coworkers.
+**Proven output:** [mini-jwt](https://github.com/AvistarAI/mini-jwt) — 38/38 features, 76 tests, 96% coverage, built in 70 minutes for $9.27.
+
+**The meta part:** The CLI itself was built by the harness. We wrote a spec for an Ink TUI, pointed the harness at it, and walked away. 4 hours later: 63/63 features, 1,141 tests, fully functional CLI with onboarding wizard, live progress display, and session history. The tool built its own interface.
 
 ---
 
@@ -10,8 +12,14 @@ An autonomous coding orchestrator that builds software end-to-end using a planne
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     HARNESS (Python)                    │
-│                                                         │
+│                    CLI (Ink TUI / Node.js)               │
+│  Onboarding wizard, live progress, session history       │
+│  Built BY the harness — 63 features, 1,141 tests        │
+└──────────────────────┬──────────────────────────────────┘
+                       │ spawns
+┌──────────────────────▼──────────────────────────────────┐
+│                   HARNESS ENGINE (Python)                │
+│                                                          │
 │  ┌──────────┐    ┌───────────┐    ┌───────────────────┐ │
 │  │ Planner  │───▶│ Generator │───▶│ Hard Validators   │ │
 │  │          │    │           │    │ (tsc, eslint,     │ │
@@ -33,226 +41,151 @@ An autonomous coding orchestrator that builds software end-to-end using a planne
 │                                    │  - Security   │    │
 │                                    │  - Usability  │    │
 │                                    └───────────────┘    │
-│                                                         │
+│                                                          │
 │  Pushes status via webhook ──────────────────────────▶  │
 └─────────────────────────────────────────────────────────┘
                                                     │
                                                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│              DASHBOARD (Next.js on Vercel)              │
-│                                                         │
-│  ┌────────────────────────────────────────────────────┐ │
-│  │ Real-time monitoring: status, features, timeline,  │ │
-│  │ evaluator scores, cost tracking, commit feed       │ │
-│  │                                                    │ │
-│  │ Harness → POST /api/ingest → Redis → SSE → Browser │ │
-│  └────────────────────────────────────────────────────┘ │
+│              DASHBOARD (Next.js on Vercel)               │
+│  Real-time monitoring: status, features, timeline,       │
+│  evaluator scores, cost tracking, commit feed, history   │
+│  Harness → POST /api/ingest → Redis → SSE → Browser     │
 └─────────────────────────────────────────────────────────┘
+```
+
+## Quick Start
+
+```bash
+# Install the CLI
+cd cli && npm install && npm link
+
+# Run against any spec
+harness run my-app-spec.md
+
+# With model tiers
+harness run spec.md --model claude-sonnet-4-6 --model-evaluator claude-opus-4-6
+
+# With dashboard
+harness run spec.md --dashboard-url https://your-dashboard.vercel.app
 ```
 
 ## How It Works
 
 ### The Loop
 
-1. **Planner** reads a product spec (`app_spec.md`) and decomposes it into a feature list with BDD scenarios. Feature count scales to spec complexity (15-25 for small projects, 60-100 for large).
+1. **Planner** reads a product spec and decomposes it into features with BDD scenarios. Feature count scales to spec complexity (10-30 small, 50-150 medium, 200-400 large).
 
-2. **Generator** picks the next incomplete feature, gets a fresh Claude Code session, implements it, writes tests, and commits. One feature per session — clean context every time.
+2. **Generator** picks the next incomplete feature, gets a fresh Claude session, implements it, writes tests, commits. One feature per session — clean context every time.
 
-3. **Hard Validators** run automatically: TypeScript type checking, ESLint, build, and test suite. The generator **cannot skip these** — if they fail, it gets the error output and retries (up to 3 attempts).
+3. **Hard Validators** run automatically: TypeScript type checking, ESLint, build, test suite. The generator **cannot skip these** — if they fail, it gets the error output and retries (max 3 attempts).
 
-4. **Evaluator** (for moderate/complex features only) is a separate Claude session with an adversarial system prompt. It reviews the implementation against a graded rubric:
-   - Spec compliance (35% weight)
-   - Code quality (25%)
-   - Security (25%)
-   - Usability (15%)
+4. **Evaluator** (moderate/complex features only) is a separate Claude session with an adversarial system prompt. Scores on spec compliance (35%), code quality (25%), security (25%), usability (15%). Minimum 7.0/10 to pass.
 
-   Minimum passing score: 7.0/10. If it fails, the generator gets structured feedback and retries.
+5. **Setup and simple features skip the evaluator** — validators are sufficient. This cuts ~50% of total runtime.
 
-5. **Setup and simple features skip the evaluator entirely** — validators are sufficient for config files, type definitions, and straightforward implementations. This cuts ~50% of total run time.
+### Complexity Routing
+
+| Complexity | Validators | Evaluator | Typical Time |
+|---|---|---|---|
+| `setup` | All 4 gates | **Skipped** | ~2-3 min |
+| `simple` | All 4 gates | **Skipped** | ~3-4 min |
+| `moderate` | All 4 gates | Full review | ~6-8 min |
+| `complex` | All 4 gates | Full review | ~8-12 min |
 
 ### Model Tiers
 
-Different agent roles can use different models for cost/speed optimization:
-
 ```bash
-python3 -m harness.main app_spec.md \
+harness run spec.md \
   --model-generator claude-sonnet-4-6 \   # Fast, good at coding
   --model-evaluator claude-opus-4-6       # Deep, good at critique
 ```
 
-Each feature has a `complexity` field (`setup`, `simple`, `moderate`, `complex`) that determines whether the evaluator runs and which model tier applies.
+## The Meta Story
 
-### Feature Complexity Routing
+The harness built its own CLI. Here's what happened:
 
-| Complexity | Generator | Validators | Evaluator | Typical Time |
-|---|---|---|---|---|
-| `setup` | Sonnet | All 4 gates | **Skipped** | ~2-3 min |
-| `simple` | Sonnet | All 4 gates | **Skipped** | ~3-4 min |
-| `moderate` | Sonnet | All 4 gates | Full review | ~6-8 min |
-| `complex` | Sonnet | All 4 gates | Full review (Opus) | ~8-12 min |
+1. We wrote a spec for an [Ink](https://github.com/vadimdemedes/ink) terminal UI (`tui_spec.md`)
+2. Pointed the harness at it: `python3 -m harness.main tui_spec.md`
+3. Walked away
+4. **4 hours later:** 63/63 features, 1,141 tests, fully functional CLI
+
+The CLI includes onboarding wizard, prerequisite checking, live progress rendering with timeline and evaluator scores, session history, and configuration management. All generated autonomously — the same tool that builds your software built its own user interface.
+
+### Build Stats
+
+| | mini-jwt (proof) | CLI (meta) |
+|---|---|---|
+| Features | 38/38 | 63/63 |
+| Tests | 76 | 1,141 |
+| Coverage | 96% | — |
+| Time | 70 min | ~4 hours |
+| Cost | $9.27 | ~$30 (Max) |
+| Human code | 0 lines | 0 lines |
 
 ## Project Structure
 
 ```
-agent-id/
-├── harness/                    # Python autonomous coding orchestrator
+long-running-harness/
+├── cli/                    # Ink TUI — built by the harness itself
+│   ├── src/
+│   │   ├── index.tsx       # Entry point, CLI arg parsing
+│   │   ├── app.tsx         # Root Ink app
+│   │   ├── commands/       # run, config, history
+│   │   ├── components/     # welcome, prereqs, progress, timeline, completion
+│   │   ├── hooks/          # use-harness, use-timer, use-log-tail
+│   │   └── lib/            # config, log-parser, prereqs, process, types
+│   └── package.json
+│
+├── harness/                # Python engine
 │   ├── harness/
-│   │   ├── main.py             # CLI entry point
-│   │   ├── orchestrator.py     # Main planner→generator→evaluator loop
-│   │   ├── client.py           # claude-agent-sdk client factory + model tiers
-│   │   ├── security.py         # Bash command allowlist (defense-in-depth)
-│   │   ├── validators.py       # Hard gates: tsc, eslint, build, test
-│   │   ├── progress.py         # feature_list.json reader
-│   │   ├── dashboard.py        # Webhook push to monitoring dashboard
-│   │   └── agents/
-│   │       ├── planner.py      # Decomposes spec → feature list
-│   │       ├── generator.py    # Implements one feature per session
-│   │       └── evaluator.py    # Adversarial reviewer with graded rubrics
-│   ├── harness/prompts/
-│   │   ├── planner.md          # System prompt for planner
-│   │   ├── generator.md        # System prompt for generator
-│   │   └── evaluator.md        # System prompt for evaluator (skeptic mode)
-│   ├── app_spec.md             # AIT standard — what the harness builds
-│   ├── test_spec.md            # Mini-JWT — small test spec for dry runs
+│   │   ├── main.py         # CLI entry point
+│   │   ├── orchestrator.py # Planner → generator → evaluator loop
+│   │   ├── client.py       # claude-agent-sdk client + model tiers
+│   │   ├── validators.py   # Hard gates: tsc, eslint, build, test
+│   │   ├── agents/         # planner, generator, evaluator, architect
+│   │   └── prompts/        # System prompts for each agent role
 │   └── pyproject.toml
 │
-├── dashboard/                  # Next.js monitoring app (Vercel)
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── ingest/route.ts # POST: harness pushes updates here
-│   │   │   ├── stream/route.ts # GET: SSE to browser (real-time)
-│   │   │   └── status/route.ts # GET: full state snapshot
-│   │   ├── dashboard.tsx       # Client component with SSE + state
-│   │   └── layout.tsx          # Catppuccin Mocha dark theme
-│   ├── components/
-│   │   ├── status-card.tsx     # Running state + elapsed timer
-│   │   ├── timeline-card.tsx   # Feature completion timeline + ETA
-│   │   ├── feature-progress.tsx# Progress bar + feature checklist
-│   │   ├── sprint-info.tsx     # Current iteration + phase
-│   │   ├── evaluator-card.tsx  # Score display + dimension breakdown
-│   │   ├── cost-tracker.tsx    # $ spent + per-agent breakdown
-│   │   └── commit-feed.tsx     # Git commit timeline
-│   └── lib/
-│       ├── redis.ts            # Upstash Redis (+ in-memory fallback for dev)
-│       ├── types.ts            # Shared TypeScript types
-│       └── keys.ts             # Redis key helpers
+├── dashboard/              # Next.js monitoring app (Vercel)
+│   ├── app/api/            # ingest, stream, status, history
+│   ├── components/         # status, timeline, features, evaluator, cost, commits
+│   └── lib/                # redis, types, keys
 │
-├── output/                     # Generated code goes here (gitignored)
-└── north-star.txt              # Strategic vision document
+├── PROMPT.md               # Distilled prompt to replicate the harness
+└── README.md
 ```
-
-## Running the Harness
-
-### Prerequisites
-
-- Python 3.11+
-- Claude Max subscription (or `ANTHROPIC_API_KEY`)
-- Node.js 20+ (for the dashboard)
-
-### Setup
-
-```bash
-# Install harness dependencies
-cd harness
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-
-# Install dashboard dependencies
-cd ../dashboard
-npm install
-```
-
-### Run (with dashboard)
-
-Terminal 1 — Dashboard:
-```bash
-cd dashboard
-npm run dev -- -p 3001
-```
-
-Terminal 2 — Harness:
-```bash
-cd harness
-source .venv/bin/activate
-python3 -m harness.main app_spec.md \
-  --dashboard-url http://localhost:3001 \
-  --dashboard-secret local-dev-secret \
-  -v
-```
-
-### Run (headless)
-
-```bash
-cd harness
-source .venv/bin/activate
-python3 -m harness.main app_spec.md -v
-
-# Monitor via log file:
-tail -f logs/harness-*.log
-```
-
-### CLI Flags
-
-| Flag | Default | Description |
-|---|---|---|
-| `spec` (positional) | required | Path to the app spec file |
-| `--model` | `claude-sonnet-4-6` | Default model for all roles |
-| `--model-planner` | (uses --model) | Model for the planner agent |
-| `--model-generator` | (uses --model) | Model for the generator agent |
-| `--model-evaluator` | (uses --model) | Model for the evaluator agent |
-| `--dashboard-url` | (none) | Dashboard webhook URL |
-| `--dashboard-secret` | (none) | Bearer token for dashboard auth |
-| `--log-file` | auto-generated | Path to log file |
-| `-v` | off | Verbose (debug) logging |
 
 ## Dashboard
 
-The monitoring dashboard shows real-time harness progress via Server-Sent Events:
+Real-time monitoring at [agent-id-shawnpetros-projects.vercel.app](https://agent-id-shawnpetros-projects.vercel.app):
 
-- **Status card** — Running/paused/complete state, current phase, elapsed timer
-- **Timeline** — Feature completion events with duration and color-coded speed
-- **Feature progress** — Checklist with pass/fail, progress bar, completion count
-- **Sprint info** — Current iteration, phase, feature being worked on
-- **Evaluator** — Score (with glow), dimension breakdown, expandable feedback
-- **Cost tracker** — Total spend, per-agent breakdown bar
-- **Commit feed** — Git commit timeline from the output directory
+- **Status card** — running state, current phase, elapsed timer (freezes on completion)
+- **Spec card** — project name + markdown description
+- **Timeline** — per-feature completion events with duration and color coding
+- **Feature progress** — checklist with pass/fail, progress bar
+- **Evaluator** — score with glow, 4-dimension breakdown, expandable feedback
+- **Cost tracker** — total spend, per-agent breakdown bar
+- **Commit feed** — git commit timeline
+- **Session history** — completed runs preserved for comparison
 
-Theme: Catppuccin Mocha with mauve/blue/pink accents.
+Theme: Catppuccin Mocha (mauve/blue/pink accents).
 
-Data flow: `Harness → POST /api/ingest → Redis → SSE /api/stream → Browser`
+## CLI Commands
 
-## What Gets Built: Agent Identity Token (AIT)
-
-The harness's target output is the AIT standard — an open identity layer for AI agents. See [`harness/app_spec.md`](harness/app_spec.md) for the full spec.
-
-**The problem:** Every security vendor at RSAC 2026 shipped agent security products (Cisco MCP enforcement, CrowdStrike agent discovery, Cyera data lineage) — but none share a common agent identity format.
-
-**The solution:** A lightweight JWT profile that answers: "Which agents touched customer data, with whose approval, using what permissions, and can we shut one off in 30 seconds?"
-
-### AIT Deliverables
-
-1. **TypeScript SDK** (`@agent-id/sdk`) — Zero-dependency library for minting, verifying, delegating, and revoking agent identity tokens
-2. **Registry & Verification Service** — Next.js API for agent registration, token issuance, revocation (kill switch), and audit trail
-3. **Enforcement Middleware** — MCP + HTTP request interception that verifies agent identity at every boundary
-4. **Spec Document** — IETF Internet-Draft format with JSON Schema
-
-## Design Decisions
-
-**Why a harness instead of just vibe-coding it?**
-
-The Anthropic research showed that long-running AI agents fail in predictable ways: context anxiety (rushing to finish as context fills) and poor self-evaluation (approving mediocre work). The harness architecture addresses both — fresh context per feature, adversarial evaluation by a separate agent, and hard validation gates that can't be sweet-talked.
-
-**Why skip evaluator for setup features?**
-
-"Did npm install work?" doesn't need an LLM to verify — the build passing is proof enough. Evaluator sessions cost ~3-5 minutes each. With 40% of features being setup/simple, skipping the evaluator for those cuts total runtime roughly in half.
-
-**Why model tiers?**
-
-Sonnet is excellent at coding (fast, accurate, cheap). Opus is excellent at critique (deep reasoning, catches subtle issues). Using Opus only where adversarial depth matters keeps runs fast without sacrificing quality on the code that needs it most.
+```bash
+harness                     # First run → onboarding wizard
+harness run <spec.md>       # Build software from spec
+harness config              # Configuration wizard
+harness config set model    # Set default model
+harness history             # Browse past runs
+harness --version           # 0.1.0
+harness --help              # Full help text
+```
 
 ## References
 
-- [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) — Anthropic Engineering, Nov 2025 (updated March 2026)
-- [claude-agent-sdk](https://github.com/anthropics/claude-agent-sdk-python) — Python SDK for programmatic Claude Code sessions
-- [Anthropic autonomous-coding quickstart](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding) — Reference implementation
+- [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) — Anthropic Engineering
+- [claude-agent-sdk](https://github.com/anthropics/claude-agent-sdk-python) — Python SDK for programmatic Claude sessions
+- [Ink](https://github.com/vadimdemedes/ink) — React for CLIs
+- [mini-jwt](https://github.com/AvistarAI/mini-jwt) — First proof-of-concept output
