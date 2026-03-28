@@ -63,43 +63,36 @@ export function StatusCard({ data }: { data: SessionStatus | null }) {
 
   return (
     <Card className={`shadow-lg ${cfg.glow} border-border/50`}>
-      <CardContent className="py-5">
+      <CardContent className="py-4 sm:py-5">
+        {/* Top row: status + clock */}
         <div className="flex items-center justify-between">
-          {/* Left: status + phase */}
-          <div className="flex items-center gap-5">
-            <span className={`text-3xl font-bold font-mono uppercase tracking-widest ${cfg.color}`}>
+          <div className="flex items-center gap-3 sm:gap-5">
+            <span className={`text-2xl sm:text-3xl font-bold font-mono uppercase tracking-widest ${cfg.color}`}>
               {data.state}
             </span>
-            <div className="h-6 w-px bg-border/50" />
-            <div className="flex items-center gap-2">
-              <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <div className="h-5 w-px bg-border/50 hidden sm:block" />
+            <div className="flex items-center gap-1.5">
+              <svg className="h-3.5 w-3.5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d={phase.icon} />
               </svg>
-              <span className="text-sm text-muted-foreground font-medium">{phase.label}</span>
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium">{phase.label}</span>
             </div>
           </div>
 
-          {/* Center: big elapsed clock */}
           {data.startedAt && (
-            <div className="flex items-center gap-2">
-              <svg className="h-4 w-4 text-muted-foreground/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
-              </svg>
-              <span className="text-2xl font-mono tabular-nums font-semibold text-foreground/90 tracking-tight">
-                {elapsed}
-              </span>
-            </div>
-          )}
-
-          {/* Right: current feature */}
-          {data.currentFeature && (
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/80">Feature</span>
-              <span className="text-sm font-medium truncate max-w-56">{data.currentFeature}</span>
-            </div>
+            <span className="text-xl sm:text-2xl font-mono tabular-nums font-semibold text-foreground/90 tracking-tight">
+              {elapsed}
+            </span>
           )}
         </div>
+
+        {/* Bottom row: current feature (only if present) */}
+        {data.currentFeature && (
+          <div className="mt-2 pt-2 border-t border-border/30">
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 mr-2">Feature</span>
+            <span className="text-sm text-foreground/80 truncate">{data.currentFeature}</span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
