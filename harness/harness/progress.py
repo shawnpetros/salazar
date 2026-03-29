@@ -4,14 +4,44 @@ import json
 from pathlib import Path
 from dataclasses import dataclass
 
+import os
+
 from harness.client import OUTPUT_DIR
 
 FEATURE_LIST_PATH = OUTPUT_DIR / "feature_list.json"
 
+# Session-scoped feature list directory
+HARNESS_DIR_NAME = ".harness"
 
-def feature_list_path(work_dir: Path | None = None) -> Path:
-    """Get the feature_list.json path for a given work directory."""
-    return (work_dir or OUTPUT_DIR) / "feature_list.json"
+
+def feature_list_path(work_dir: Path | None = None, session_id: str | None = None) -> Path:
+    """Get the feature_list.json path for a given work directory.
+
+    In brownfield mode, feature lists are stored in .harness/<session_id>/
+    so multiple runs don't clobber each other. In greenfield mode,
+    falls back to feature_list.json in the work dir root.
+    """
+    base = work_dir or OUTPUT_DIR
+    sid = session_id or os.environ.get("HARNESS_SESSION_ID")
+
+    if sid:
+        harness_dir = base / HARNESS_DIR_NAME / sid
+        harness_dir.mkdir(parents=True, exist_ok=True)
+        return harness_dir / "feature_list.json"
+
+    return base / "feature_list.json"
+
+
+def list_previous_runs(work_dir: Path | None = None) -> list[str]:
+    """List all previous harness session IDs in a work directory."""
+    base = work_dir or OUTPUT_DIR
+    harness_dir = base / HARNESS_DIR_NAME
+    if not harness_dir.exists():
+        return []
+    return sorted(
+        [d.name for d in harness_dir.iterdir() if d.is_dir() and (d / "feature_list.json").exists()],
+        reverse=True,
+    )
 
 
 @dataclass

@@ -126,9 +126,10 @@ async def run_orchestrator(
     # In brownfield mode, work in the spec file's directory (the existing codebase)
     # In greenfield mode, work in OUTPUT_DIR (fresh directory)
     work_dir = app_spec_path.parent if brownfield else OUTPUT_DIR
+    import os
+    os.environ["HARNESS_SESSION_ID"] = session.session_id
     if brownfield:
         logger.info(f"[orchestrator] Brownfield target: {work_dir}")
-        import os
         os.environ["HARNESS_WORK_DIR"] = str(work_dir)
 
     # Detect validators (auto-detect toolchain)
