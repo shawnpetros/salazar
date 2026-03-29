@@ -1,5 +1,6 @@
 """Generator agent — builds one feature per session."""
 
+import asyncio
 import json
 import logging
 from pathlib import Path
@@ -68,11 +69,22 @@ async def run_generator(feature: dict, evaluator_feedback: str | None = None) ->
     cost_usd = 0.0
     error = None
 
-    try:
+    # 15 minute timeout per generator session — prevents infinite hangs
+    # from interactive CLIs (create-next-app, shadcn init) or long npm installs
+    SESSION_TIMEOUT = 900  # 15 minutes
+
+    async def _run_session():
+        nonlocal cost_usd
         async for message in query(prompt=prompt, options=options):
             if isinstance(message, ResultMessage):
                 cost_usd = message.total_cost_usd or 0.0
                 logger.info(f"[generator] Feature {feature_id} session complete: cost=${cost_usd:.4f}, turns={message.num_turns}")
+
+    try:
+        await asyncio.wait_for(_run_session(), timeout=SESSION_TIMEOUT)
+    except asyncio.TimeoutError:
+        error = f"Generator session timed out after {SESSION_TIMEOUT}s"
+        logger.error(f"[generator] Feature {feature_id}: {error}")
     except Exception as e:
         error = str(e)
         logger.error(f"[generator] Feature {feature_id} failed: {error}")

@@ -43,12 +43,21 @@ async def run_planner(app_spec_path: Path) -> bool:
         max_budget_usd=10.0,  # Planner is a one-shot — shouldn't cost much
     )
 
+    import asyncio
+
+    async def _run():
+        nonlocal result_text
+        async for message in query(prompt=prompt, options=options):
+            if isinstance(message, ResultMessage):
+                cost = message.total_cost_usd or 0.0
+                logger.info(f"[planner] Session complete: cost=${cost:.4f}, turns={message.num_turns}")
+                result_text = f"cost={cost:.4f}"
+
     result_text = ""
-    async for message in query(prompt=prompt, options=options):
-        if isinstance(message, ResultMessage):
-            cost = message.total_cost_usd or 0.0
-            logger.info(f"[planner] Session complete: cost=${cost:.4f}, turns={message.num_turns}")
-            result_text = f"cost={cost:.4f}"
+    try:
+        await asyncio.wait_for(_run(), timeout=600)  # 10 min timeout
+    except asyncio.TimeoutError:
+        logger.error("[planner] Session timed out after 10 minutes")
 
     # Verify output
     feature_list = OUTPUT_DIR / "feature_list.json"
