@@ -193,7 +193,9 @@ async def run_orchestrator(
                 logger.warning("[orchestrator] Explorer failed — proceeding without assessment")
 
         # Phase 1: Planning
-        if not feature_list_path(work_dir).exists():
+        # Check both session-scoped and root paths
+        has_features = feature_list_path(work_dir).exists() or (work_dir / "feature_list.json").exists()
+        if not has_features:
             logger.info("[orchestrator] No feature_list.json — running planner")
             await dashboard.push_phase_change(session.session_id, "plan")
 

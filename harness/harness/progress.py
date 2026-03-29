@@ -67,9 +67,25 @@ class ProgressReport:
 
 
 def read_progress(work_dir: Path | None = None) -> ProgressReport | None:
-    """Read the feature list and return a progress report."""
-    path = feature_list_path(work_dir)
-    if not path.exists():
+    """Read the feature list and return a progress report.
+
+    Checks session-scoped path first, falls back to root path.
+    If found at root but not in session dir, moves it to session dir.
+    """
+    session_path = feature_list_path(work_dir)
+    root_path = (work_dir or OUTPUT_DIR) / "feature_list.json"
+
+    # Try session-scoped path first
+    if session_path.exists():
+        path = session_path
+    elif root_path.exists() and root_path != session_path:
+        # Planner wrote to root — move to session dir
+        session_path.parent.mkdir(parents=True, exist_ok=True)
+        root_path.rename(session_path)
+        path = session_path
+    elif root_path.exists():
+        path = root_path
+    else:
         return None
 
     data = json.loads(path.read_text())
