@@ -44,9 +44,9 @@ describe("F034 — package.json version", () => {
     expect(pkg.version).toBe("0.1.0");
   });
 
-  it("package.json name is harness-cli", () => {
+  it("package.json name is salazar", () => {
     const pkg = readPackageJson();
-    expect(pkg.name).toBe("harness-cli");
+    expect(pkg.name).toBe("salazar");
   });
 });
 
