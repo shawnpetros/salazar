@@ -1,9 +1,9 @@
 {
-  "name": "harness-cli",
+  "name": "salazar",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "harness": "./dist/index.js"
+    "salazar": "./dist/index.js"
   },
   "scripts": {
     "build": "tsup",

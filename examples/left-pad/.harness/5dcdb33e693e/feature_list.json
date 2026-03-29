@@ -1,0 +1,209 @@
+{
+  "features": [
+    {
+      "id": "F001",
+      "category": "setup",
+      "description": "Initialize project: package.json (name: left-pad, ESM type), tsconfig.json (strict mode), vitest.config.ts, and install all dev dependencies (typescript, vitest, tsup)",
+      "priority": 1,
+      "complexity": "setup",
+      "steps": [
+        "Given an empty project directory",
+        "When the project is initialized with package.json, tsconfig.json, and vitest.config.ts",
+        "Then package.json has name 'left-pad', type 'module', and dev dependencies for typescript, vitest, and tsup",
+        "And tsconfig.json enables strict mode with ESM output",
+        "And vitest.config.ts is present and valid"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F002",
+      "category": "types",
+      "description": "Define TypeScript function signatures for leftPad and rightPad in src/pad.ts",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given a src/pad.ts file",
+        "When the file is inspected",
+        "Then it exports a function 'leftPad' with signature (str: string, length: number, char?: string): string",
+        "And it exports a function 'rightPad' with signature (str: string, length: number, char?: string): string"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F003",
+      "category": "core",
+      "description": "leftPad: pad string on the left with spaces by default to reach the target length",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the leftPad function",
+        "When called with leftPad('hello', 10)",
+        "Then it returns '     hello' (5 leading spaces)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F004",
+      "category": "core",
+      "description": "leftPad: pad string on the left with a custom character",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the leftPad function",
+        "When called with leftPad('hello', 10, '.')",
+        "Then it returns '.....hello' (5 leading dots)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F005",
+      "category": "core",
+      "description": "leftPad: do not truncate when input string length is already >= target length",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the leftPad function",
+        "When called with leftPad('hello', 3)",
+        "Then it returns 'hello' unchanged (no truncation)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F006",
+      "category": "core",
+      "description": "leftPad: handle empty string input by padding entirely with the pad character",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given the leftPad function",
+        "When called with leftPad('', 5, '-')",
+        "Then it returns '-----' (5 dashes)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F007",
+      "category": "core",
+      "description": "rightPad: pad string on the right with spaces by default to reach the target length",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the rightPad function",
+        "When called with rightPad('hello', 10)",
+        "Then it returns 'hello     ' (5 trailing spaces)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F008",
+      "category": "core",
+      "description": "rightPad: pad string on the right with a custom character",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the rightPad function",
+        "When called with rightPad('hello', 10, '.')",
+        "Then it returns 'hello.....' (5 trailing dots)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F009",
+      "category": "core",
+      "description": "rightPad: do not truncate when input string length is already >= target length",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the rightPad function",
+        "When called with rightPad('hello', 3)",
+        "Then it returns 'hello' unchanged (no truncation)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F010",
+      "category": "core",
+      "description": "rightPad: handle empty string input by padding entirely with the pad character",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given the rightPad function",
+        "When called with rightPad('', 5, '-')",
+        "Then it returns '-----' (5 dashes)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F011",
+      "category": "core",
+      "description": "leftPad and rightPad: handle edge case where target length is 0 or negative",
+      "priority": 3,
+      "complexity": "simple",
+      "steps": [
+        "Given the leftPad and rightPad functions",
+        "When called with a target length of 0 (e.g. leftPad('hi', 0))",
+        "Then it returns the original string 'hi' unmodified",
+        "And when called with a negative length (e.g. leftPad('hi', -1))",
+        "Then it returns the original string 'hi' unmodified"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F012",
+      "category": "api",
+      "description": "Module entry point: src/index.ts re-exports both leftPad and rightPad as named exports",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given the src/index.ts file",
+        "When it is imported",
+        "Then it exports a named export 'leftPad' that is the leftPad function",
+        "And it exports a named export 'rightPad' that is the rightPad function"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F013",
+      "category": "testing",
+      "description": "Vitest test suite in src/pad.test.ts covering all leftPad and rightPad scenarios",
+      "priority": 2,
+      "complexity": "moderate",
+      "steps": [
+        "Given a src/pad.test.ts file using Vitest",
+        "When 'npx vitest run' is executed",
+        "Then all tests pass with zero failures",
+        "And tests cover: default space padding, custom char padding, no-truncation, empty string, and edge cases for both leftPad and rightPad"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F014",
+      "category": "setup",
+      "description": "tsup build configuration producing ESM output with TypeScript declaration files",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given a tsup.config.ts or tsup config in package.json",
+        "When 'npx tsup' is executed",
+        "Then a dist/ directory is created with ESM .js output",
+        "And TypeScript .d.ts declaration files are generated alongside the JS output"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F015",
+      "category": "setup",
+      "description": "package.json exports map: configure main, module, and types fields for correct ESM resolution",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given the package.json",
+        "When inspected",
+        "Then it has an 'exports' field pointing to the ESM dist output",
+        "And it has a 'types' field pointing to the generated .d.ts file",
+        "And a 'build' script runs tsup and a 'test' script runs vitest"
+      ],
+      "passes": true
+    }
+  ]
+}

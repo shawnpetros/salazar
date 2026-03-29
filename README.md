@@ -1,10 +1,14 @@
-# Long-Running Harness
+# Salazar
+
+*The tool that builds itself.*
 
 An autonomous coding orchestrator that builds software end-to-end from a markdown spec — no human code required. Planner/generator/evaluator agent loop using Claude via `claude-agent-sdk`, with a real-time monitoring dashboard and an Ink terminal UI.
 
+Named after the serpent — an ouroboros that eats its own tail. We pointed it at a spec for its own CLI and it built a 1,141-test terminal app in 4 hours. Then we pointed it at its own codebase in brownfield mode to add features to itself.
+
 **Proven output:** [mini-jwt](https://github.com/AvistarAI/mini-jwt) — 38/38 features, 76 tests, 96% coverage, built in 70 minutes for $9.27.
 
-**The meta part:** The CLI itself was built by the harness. We wrote a spec for an Ink TUI, pointed the harness at it, and walked away. 4 hours later: 63/63 features, 1,141 tests, fully functional CLI with onboarding wizard, live progress display, and session history. The tool built its own interface.
+**The meta part:** The CLI itself was built by Salazar. We wrote a spec for an Ink TUI, pointed Salazar at it, and walked away. 4 hours later: 63/63 features, 1,141 tests, fully functional CLI. The tool built its own interface.
 
 ---
 
@@ -14,7 +18,7 @@ An autonomous coding orchestrator that builds software end-to-end from a markdow
 ┌─────────────────────────────────────────────────────────┐
 │                    CLI (Ink TUI / Node.js)               │
 │  Onboarding wizard, live progress, session history       │
-│  Built BY the harness — 63 features, 1,141 tests        │
+│  Built BY Salazar — 63 features, 1,141 tests        │
 └──────────────────────┬──────────────────────────────────┘
                        │ spawns
 ┌──────────────────────▼──────────────────────────────────┐
@@ -61,21 +65,21 @@ An autonomous coding orchestrator that builds software end-to-end from a markdow
 cd cli && npm install && npm link
 
 # Greenfield — build from a spec
-harness run my-app-spec.md
+salazar run my-app-spec.md
 
 # Brownfield — work on an existing codebase
-harness run features.md --brownfield
+salazar run features.md --brownfield
 
 # Brownfield with hardening control
-harness run features.md --brownfield --hardening thorough  # add tests for blast radius
-harness run features.md --brownfield --hardening minimal   # only fix broken validators
-harness run features.md --brownfield --hardening skip      # trust existing tests
+salazar run features.md --brownfield --hardening thorough  # add tests for blast radius
+salazar run features.md --brownfield --hardening minimal   # only fix broken validators
+salazar run features.md --brownfield --hardening skip      # trust existing tests
 
 # With model tiers
-harness run spec.md --model claude-sonnet-4-6 --model-evaluator claude-opus-4-6
+salazar run spec.md --model claude-sonnet-4-6 --model-evaluator claude-opus-4-6
 
 # With dashboard
-harness run spec.md --dashboard-url https://your-dashboard.vercel.app
+salazar run spec.md --dashboard-url https://your-dashboard.vercel.app
 ```
 
 ## How It Works
@@ -103,7 +107,7 @@ harness run spec.md --dashboard-url https://your-dashboard.vercel.app
 
 ### Brownfield Mode
 
-For existing codebases, the harness adds three phases before feature work:
+For existing codebases, Salazar adds three phases before feature work:
 
 1. **Explorer** — scans the codebase, detects toolchain (package manager, test framework, build scripts), produces `codebase_context.md` and `validator_assessment.json`
 2. **Hardening sprint** — if the safety net is insufficient for the planned work, adds tests and fixes broken validators *before* building features. Scoped to the blast radius, not the whole codebase.
@@ -116,13 +120,13 @@ The generator uses **TDD** (test-driven development) in both modes:
 - Refactor if needed
 
 ```bash
-harness run add-auth.md --brownfield --hardening auto
+salazar run add-auth.md --brownfield --hardening auto
 ```
 
 ### Model Tiers
 
 ```bash
-harness run spec.md \
+salazar run spec.md \
   --model-generator claude-sonnet-4-6 \   # Fast, good at coding
   --model-evaluator claude-opus-4-6       # Deep, good at critique
 ```
@@ -132,7 +136,7 @@ harness run spec.md \
 The harness built its own CLI. Here's what happened:
 
 1. We wrote a spec for an [Ink](https://github.com/vadimdemedes/ink) terminal UI (`tui_spec.md`)
-2. Pointed the harness at it: `python3 -m harness.main tui_spec.md`
+2. Pointed Salazar at it: `python3 -m harness.main tui_spec.md`
 3. Walked away
 4. **4 hours later:** 63/63 features, 1,141 tests, fully functional CLI
 
@@ -152,8 +156,8 @@ The CLI includes onboarding wizard, prerequisite checking, live progress renderi
 ## Project Structure
 
 ```
-long-running-harness/
-├── cli/                    # Ink TUI — built by the harness itself
+salazar/
+├── cli/                    # Ink TUI — built by Salazar itself
 │   ├── src/
 │   │   ├── index.tsx       # Entry point, CLI arg parsing
 │   │   ├── app.tsx         # Root Ink app
@@ -178,7 +182,7 @@ long-running-harness/
 │   ├── components/         # status, timeline, features, evaluator, cost, commits
 │   └── lib/                # redis, types, keys
 │
-├── PROMPT.md               # Distilled prompt to replicate the harness
+├── PROMPT.md               # Distilled prompt to replicate Salazar
 └── README.md
 ```
 
@@ -200,13 +204,13 @@ Theme: Catppuccin Mocha (mauve/blue/pink accents).
 ## CLI Commands
 
 ```bash
-harness                     # First run → onboarding wizard
-harness run <spec.md>       # Build software from spec
-harness config              # Configuration wizard
-harness config set model    # Set default model
-harness history             # Browse past runs
-harness --version           # 0.1.0
-harness --help              # Full help text
+salazar                     # First run → onboarding wizard
+salazar run <spec.md>       # Build software from spec
+salazar config              # Configuration wizard
+salazar config set model    # Set default model
+salazar history             # Browse past runs
+salazar --version           # 0.1.0
+salazar --help              # Full help text
 ```
 
 ## References

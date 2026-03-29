@@ -1,0 +1,12 @@
+2026-03-27 08:34:06,254 [harness.main] INFO: Starting harness with spec: test_spec.md
+2026-03-27 08:34:06,254 [harness.main] INFO: Model: claude-sonnet-4-6
+2026-03-27 08:34:06,254 [harness.main] INFO: Log file: /Users/shawnpetros/projects/agent-id/harness/logs/harness-20260327-083406.log
+2026-03-27 08:34:06,254 [harness.main] INFO: Dashboard: http://localhost:3001
+2026-03-27 08:34:06,254 [asyncio] DEBUG: Using selector: KqueueSelector
+2026-03-27 08:34:06,254 [harness.orchestrator] INFO: [orchestrator] Starting session 374cf9cac10d
+2026-03-27 08:34:06,254 [harness.dashboard] DEBUG: [dashboard] No DASHBOARD_URL configured, skipping push
+2026-03-27 08:34:06,254 [harness.orchestrator] INFO: [orchestrator] No feature_list.json — running planner
+2026-03-27 08:34:06,254 [harness.dashboard] DEBUG: [dashboard] No DASHBOARD_URL configured, skipping push
+2026-03-27 08:34:06,254 [harness.planner] INFO: [planner] Starting planner agent
+2026-03-27 08:34:06,255 [claude_agent_sdk._internal.transport.subprocess_cli] INFO: Using bundled Claude Code CLI: /Users/shawnpetros/projects/agent-id/harness/.venv/lib/python3.14/site-packages/claude_agent_sdk/_bundled/claude
+2026-03-27 08:34:07,189 [claude_agent_sdk._internal.query] DEBUG: Waiting for first result before closing stdin (sdk_mcp_servers=0, has_hooks=True)

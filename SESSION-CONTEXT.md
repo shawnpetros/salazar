@@ -1,24 +1,39 @@
 ## Status
 
-Harness v0.1 complete and proven. mini-jwt built autonomously (38/38 features, 76 tests, 96% coverage, 70 min, $9.27). Dashboard deployed to Vercel with session history. Ready for real AIT spec run.
+Salazar (renamed from "long-running harness") is functional for greenfield builds. Brownfield mode exists but has bugs that need fixing before use. Dashboard needs a v2 rethink.
 
 ## In-Flight
 
-- History view UI shipped, needs more runs to populate
-- Architect agent + multi-orchestrator built but untested on a real multi-service spec
+- Left-pad built successfully (15/15, 76 tests, 43 min, $5.47) — in examples/left-pad
+- Brownfield ouroboros test failed — planner went rogue, tests broke from rename, feature_list path issues
+- Dashboard shows data but has gaps (no features card during hardening, scroll issues, stale footer text)
 
 ## Key Details
 
-- Harness repo: github.com/shawnpetros/long-running-harness (main merged)
-- Dashboard: agent-id-shawnpetros-projects.vercel.app (Upstash Redis, INGEST_SECRET set)
-- mini-jwt proof: github.com/AvistarAI/mini-jwt
-- claude-agent-sdk==0.1.50 in harness/.venv (Python 3.14)
-- Vercel project `agent-id` with rootDirectory=dashboard
+- Repo: github.com/shawnpetros/salazar (renamed from long-running-harness)
+- CLI binary: `salazar` (package name: salazar, was harness-cli)
+- Dashboard: agent-id-shawnpetros-projects.vercel.app (still on old Vercel project name)
+- Proven greenfield builds: mini-jwt (38/38), TUI (63/63), left-pad (15/15)
+- Brownfield NOT ready — needs planner constraint, test count parser fix, rollback validation
+- Banner image generated for branding
 
-## Next Steps
+## Next Session: Two Priorities
 
-1. Run harness on real AIT app_spec.md (multi-orchestrator mode)
-2. Add integration test phase post-completion
-3. Add intermediate checkpoints for multi-service builds
-4. Build tabbed dashboard for parallel harness instances
-5. Historical comparison view across runs
+### Priority 1: SQLite Storage Layer (interactive)
+Replace dashboard.py webhook pushes with direct SQLite writes to ~/.salazar/salazar.db.
+Schema: sessions, features, timeline, costs tables.
+This is the foundation for dashboard v2 and the `salazar dashboard` local command.
+DO INTERACTIVELY — it touches the core engine.
+
+### Priority 2: Dashboard v2 (can be specced for Salazar)
+New routing: / (active sessions), /session/:id (detail), /history, /history/:id
+Local mode: `salazar dashboard` starts web server, reads SQLite
+Remote mode: optional daemon syncs SQLite → Redis for Vercel deployment
+Better UI: loading states with personality, phase pipeline viz, multi-session support
+Fix commit display (only commit on feature PASS, not retries)
+
+### Brownfield Fixes (before next brownfield attempt)
+- Planner prompt: "ONLY plan features from the spec, not from codebase exploration"
+- Test count parser: match "Tests N passed" not "Test Files N passed"
+- Validate rollback actually works (git checkout . on failure)
+- Session-scoped feature lists need more testing

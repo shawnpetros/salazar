@@ -2,7 +2,7 @@
  * F001 — Project initialization tests
  *
  * Verifies that package.json is correctly configured with:
- *  - name: harness-cli
+ *  - name: salazar
  *  - version: 0.1.0
  *  - type: module (ESM)
  *  - bin field pointing harness → ./dist/index.js
@@ -31,9 +31,9 @@ function readTsConfig(): Record<string, unknown> {
 }
 
 describe("F001 — package.json structure", () => {
-  it("has name harness-cli", () => {
+  it("has name salazar", () => {
     const pkg = readPackageJson();
-    expect(pkg["name"]).toBe("harness-cli");
+    expect(pkg["name"]).toBe("salazar");
   });
 
   it("has version 0.1.0", () => {
@@ -46,11 +46,11 @@ describe("F001 — package.json structure", () => {
     expect(pkg["type"]).toBe("module");
   });
 
-  it('has bin field mapping "harness" → "./dist/index.js"', () => {
+  it('has bin field mapping "salazar" → "./dist/index.js"', () => {
     const pkg = readPackageJson();
     const bin = pkg["bin"] as Record<string, string>;
     expect(bin).toBeDefined();
-    expect(bin["harness"]).toBe("./dist/index.js");
+    expect(bin["salazar"]).toBe("./dist/index.js");
   });
 
   it("includes all required runtime dependencies", () => {
