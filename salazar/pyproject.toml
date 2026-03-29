@@ -1,7 +1,7 @@
 [project]
-name = "agent-id-harness"
+name = "salazar"
 version = "0.1.0"
-description = "Autonomous coding harness for building the Agent Identity Token standard"
+description = "Salazar — autonomous coding orchestrator. The tool that builds itself."
 requires-python = ">=3.11"
 dependencies = [
     "claude-agent-sdk>=0.1.0",
@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-harness = "harness.main:main"
+salazar = "salazar.main:main"
 
 [build-system]
 requires = ["hatchling"]

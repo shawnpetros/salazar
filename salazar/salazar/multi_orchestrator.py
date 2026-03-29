@@ -6,15 +6,15 @@ import time
 import uuid
 from pathlib import Path
 
-from harness.agents.architect import (
+from salazar.agents.architect import (
     run_architect,
     is_multi_service,
     get_parallel_groups,
     get_service_spec,
 )
-from harness.orchestrator import run_orchestrator
-from harness.client import OUTPUT_DIR
-from harness import dashboard
+from salazar.orchestrator import run_orchestrator
+from salazar.client import OUTPUT_DIR
+from salazar import dashboard
 
 logger = logging.getLogger("harness.multi")
 

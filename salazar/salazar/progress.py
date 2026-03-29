@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import os
 
-from harness.client import OUTPUT_DIR
+from salazar.client import OUTPUT_DIR
 
 FEATURE_LIST_PATH = OUTPUT_DIR / "feature_list.json"
 
