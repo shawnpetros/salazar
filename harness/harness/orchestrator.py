@@ -1,6 +1,12 @@
-"""Orchestrator — the main planner → generator → evaluator loop."""
+"""Orchestrator — the main planner → generator → evaluator loop.
+
+Supports both greenfield and brownfield modes:
+- Greenfield: planner → generator (TDD) → validators → evaluator
+- Brownfield: explorer → hardening → planner → generator (TDD) → validators → evaluator
+"""
 
 import asyncio
+import json
 import logging
 import subprocess
 import time
@@ -12,7 +18,11 @@ from harness.agents.generator import run_generator
 from harness.agents.evaluator import run_evaluator
 from harness.client import OUTPUT_DIR
 from harness.progress import read_progress, get_feature_summary, FEATURE_LIST_PATH
-from harness.validators import run_all_validators, all_passed, format_failures
+from harness.validators import (
+    run_all_validators, run_tests_only, all_passed, format_failures,
+    detect_validators, capture_baseline, check_regression,
+    ValidatorConfig, BaselineResult,
+)
 from harness import dashboard
 
 logger = logging.getLogger("harness.orchestrator")
@@ -75,16 +85,27 @@ class HarnessSession:
         return int(time.time() - self.start_time)
 
 
-async def run_orchestrator(app_spec_path: Path) -> None:
+async def run_orchestrator(
+    app_spec_path: Path,
+    brownfield: bool = False,
+    hardening: str = "auto",
+) -> None:
     """Main orchestration loop.
 
+    Greenfield:
     1. Run planner (if no feature_list.json)
-    2. Loop over features:
-       a. Generator builds
-       b. Hard validators check
-       c. Evaluator reviews
-       d. Retry on failure
+    2. Loop: generator (TDD) → validators → evaluator → retry
     3. Complete
+
+    Brownfield (when brownfield=True):
+    0. Run explorer → assess validator surface area
+    0b. Run hardening sprint if needed
+    1-3. Same as greenfield but with baseline regression checks
+
+    Args:
+        app_spec_path: Path to the spec file.
+        brownfield: If True, run explorer first and enable regression guards.
+        hardening: "auto" | "minimal" | "thorough" | "skip"
     """
     session = HarnessSession(app_spec_path)
     logger.info(f"[orchestrator] Starting session {session.session_id}")
@@ -102,7 +123,66 @@ async def run_orchestrator(app_spec_path: Path) -> None:
     except Exception as e:
         logger.warning(f"[orchestrator] Could not push spec card: {e}")
 
+    # Detect validators (auto-detect toolchain)
+    validator_config = detect_validators(OUTPUT_DIR)
+    baseline: BaselineResult | None = None
+
     try:
+        # Phase 0 (brownfield only): Explorer + Hardening
+        if brownfield:
+            from harness.agents.explorer import run_explorer, get_hardening_features
+
+            logger.info("[orchestrator] Brownfield mode — running explorer")
+            await dashboard.push_phase_change(session.session_id, "plan", "Exploring codebase")
+
+            explorer_start = time.time()
+            assessment = await run_explorer(OUTPUT_DIR, app_spec_path)
+            explorer_ms = int((time.time() - explorer_start) * 1000)
+
+            if assessment:
+                await dashboard.push_timeline_event(session.session_id, "Explorer: codebase scanned", explorer_ms)
+
+                # Re-detect validators after explorer may have updated assessment
+                validator_config = detect_validators(OUTPUT_DIR)
+
+                # Capture baseline before any changes
+                baseline = await capture_baseline(OUTPUT_DIR, validator_config)
+                logger.info(f"[orchestrator] Baseline: {baseline.test_count} tests, passing={baseline.all_passing}")
+
+                # Hardening sprint
+                needs_hardening = assessment.get("hardening_needed", False)
+                if needs_hardening and hardening != "skip":
+                    scope = hardening if hardening != "auto" else assessment.get("hardening_scope", "targeted")
+                    hardening_features = get_hardening_features(assessment)
+
+                    if scope == "minimal":
+                        hardening_features = [f for f in hardening_features if f.get("priority") == 1]
+                    elif scope == "thorough":
+                        pass  # Use all features
+
+                    if hardening_features:
+                        logger.info(f"[orchestrator] Hardening sprint: {len(hardening_features)} features ({scope})")
+                        await dashboard.push_timeline_event(session.session_id, f"Hardening: {len(hardening_features)} features ({scope})")
+
+                        # Write hardening features to feature_list.json temporarily
+                        hardening_list = {"features": hardening_features}
+                        FEATURE_LIST_PATH.write_text(json.dumps(hardening_list, indent=2))
+
+                        # Run the hardening features through the normal loop (uses hardening prompt)
+                        await _run_feature_loop(
+                            session, validator_config, baseline,
+                            use_hardening_prompt=True,
+                        )
+
+                        # Remove hardening feature_list so planner creates the real one
+                        FEATURE_LIST_PATH.unlink(missing_ok=True)
+
+                        # Re-capture baseline after hardening
+                        baseline = await capture_baseline(OUTPUT_DIR, validator_config)
+                        logger.info(f"[orchestrator] Post-hardening baseline: {baseline.test_count} tests")
+            else:
+                logger.warning("[orchestrator] Explorer failed — proceeding without assessment")
+
         # Phase 1: Planning
         if not FEATURE_LIST_PATH.exists():
             logger.info("[orchestrator] No feature_list.json — running planner")
@@ -123,166 +203,14 @@ async def run_orchestrator(app_spec_path: Path) -> None:
                 logger.info(f"[orchestrator] Planner created {progress.total} features")
 
         # Phase 2: Build loop
-        while True:
-            progress = read_progress()
-            if progress is None:
-                logger.error("[orchestrator] Cannot read feature_list.json")
-                await dashboard.push_session_error(session.session_id, "Cannot read feature_list.json")
-                return
-
-            if progress.is_complete:
-                logger.info(f"[orchestrator] All {progress.total} features complete!")
-                await dashboard.push_session_complete(session.session_id)
-                return
-
-            feature = progress.next_incomplete()
-            if feature is None:
-                logger.info("[orchestrator] No more incomplete features — done")
-                await dashboard.push_session_complete(session.session_id)
-                return
-
-            session.iteration += 1
-            feature_id = feature.get("id", "unknown")
-            feature_name = feature.get("description", "unnamed")
-            feature_start_time = time.time()
-
-            logger.info(
-                f"[orchestrator] Iteration {session.iteration}: "
-                f"feature {feature_id} ({progress.passing}/{progress.total} done)"
-            )
-
-            await dashboard.push_sprint(
-                session.session_id,
-                session.iteration,
-                "generate",
-                feature_name,
-                f"Implementing {feature_id}",
-            )
-
-            # Determine complexity tier
-            complexity = feature.get("complexity", "moderate")
-            skip_evaluator = complexity in ("setup", "simple")
-            max_eval_retries = 0 if skip_evaluator else MAX_EVALUATOR_RETRIES
-
-            if skip_evaluator:
-                logger.info(f"[orchestrator] Feature {feature_id} is {complexity} — skipping evaluator")
-
-            # Generator loop with validator retries
-            evaluator_feedback = None
-            feature_complete = False
-
-            for eval_attempt in range(max_eval_retries + 1):
-                # Run generator
-                await dashboard.push_phase_change(session.session_id, "generate", feature_name)
-
-                gen_result = await run_generator(feature, evaluator_feedback)
-                session.total_cost += gen_result.get("cost_usd", 0)
-                session.cost_by_agent["generator"] += gen_result.get("cost_usd", 0)
-
-                if gen_result.get("error"):
-                    logger.error(f"[orchestrator] Generator error: {gen_result['error']}")
-                    break
-
-                # Run hard validators with retries
-                await dashboard.push_phase_change(session.session_id, "validate", feature_name)
-
-                validator_passed = False
-                for val_attempt in range(MAX_VALIDATOR_RETRIES):
-                    results = await run_all_validators()
-                    if all_passed(results):
-                        validator_passed = True
-                        break
-
-                    logger.warning(
-                        f"[orchestrator] Validators failed (attempt {val_attempt + 1}/{MAX_VALIDATOR_RETRIES})"
-                    )
-
-                    if val_attempt < MAX_VALIDATOR_RETRIES - 1:
-                        failures_text = format_failures(results)
-                        evaluator_feedback = f"VALIDATOR FAILURES:\n{failures_text}"
-                        gen_result = await run_generator(feature, evaluator_feedback)
-                        session.total_cost += gen_result.get("cost_usd", 0)
-                        session.cost_by_agent["generator"] += gen_result.get("cost_usd", 0)
-
-                if not validator_passed:
-                    logger.error(f"[orchestrator] Feature {feature_id}: validators failed after {MAX_VALIDATOR_RETRIES} attempts")
-                    break
-
-                # Skip evaluator for setup/simple features — validators are enough
-                if skip_evaluator:
-                    feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
-                    logger.info(f"[orchestrator] Feature {feature_id} PASSED (validators only, {complexity})")
-                    feature_complete = True
-                    await dashboard.push_timeline_event(
-                        session.session_id,
-                        f"{feature_id} passed (validators, {complexity})",
-                        feature_elapsed_ms,
-                    )
-                    await push_git_commits(session.session_id)
-                    break
-
-                # Run evaluator for moderate/complex features
-                await dashboard.push_phase_change(session.session_id, "evaluate", feature_name)
-
-                eval_result = await run_evaluator(feature)
-                session.total_cost += eval_result.get("cost_usd", 0)
-                session.cost_by_agent["evaluator"] += eval_result.get("cost_usd", 0)
-
-                await dashboard.push_evaluator_result(
-                    session.session_id,
-                    eval_result["score"],
-                    eval_result["feedback"],
-                    eval_result["dimensionScores"],
-                )
-
-                if eval_result["passed"]:
-                    feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
-                    logger.info(f"[orchestrator] Feature {feature_id} PASSED (score: {eval_result['score']})")
-                    feature_complete = True
-                    await dashboard.push_timeline_event(
-                        session.session_id,
-                        f"{feature_id} passed ({eval_result['score']}/10)",
-                        feature_elapsed_ms,
-                    )
-                    await push_git_commits(session.session_id)
-                    break
-                else:
-                    logger.warning(
-                        f"[orchestrator] Feature {feature_id} FAILED evaluation "
-                        f"(score: {eval_result['score']}, attempt {eval_attempt + 1}/{max_eval_retries + 1})"
-                    )
-                    evaluator_feedback = eval_result["feedback"]
-
-            # Update dashboard with feature progress
-            updated_progress = read_progress()
-            if updated_progress:
-                await dashboard.push_feature_update(
-                    session.session_id,
-                    get_feature_summary(updated_progress),
-                )
-
-            # Push cost update
-            await dashboard.push_cost(
-                session.session_id,
-                total_tokens=0,  # SDK doesn't expose token counts directly
-                input_tokens=0,
-                output_tokens=0,
-                estimated_cost=session.total_cost,
-                by_agent=session.cost_by_agent,
-            )
-
-            if not feature_complete:
-                logger.warning(f"[orchestrator] Feature {feature_id} could not be completed — skipping")
-
-            # Brief delay between sessions
-            logger.debug(f"[orchestrator] Waiting {DELAY_BETWEEN_SESSIONS}s before next feature")
-            await asyncio.sleep(DELAY_BETWEEN_SESSIONS)
+        await _run_feature_loop(session, validator_config, baseline)
 
     except KeyboardInterrupt:
         logger.info("[orchestrator] Interrupted by user")
         await dashboard.push_status(session.session_id, "status", {
             "state": "paused",
             "phase": "interrupted",
+            "startedAt": dashboard._get_started_at(),
             "currentFeature": None,
         })
     except Exception as e:
@@ -295,3 +223,178 @@ async def run_orchestrator(app_spec_path: Path) -> None:
             f"[orchestrator] Session {session.session_id} finished in {elapsed}s, "
             f"total cost: ${session.total_cost:.2f}"
         )
+
+
+async def _run_feature_loop(
+    session: HarnessSession,
+    validator_config: ValidatorConfig | None = None,
+    baseline: BaselineResult | None = None,
+    use_hardening_prompt: bool = False,
+) -> None:
+    """The core feature loop — shared between main build and hardening sprint."""
+    while True:
+        progress = read_progress()
+        if progress is None:
+            logger.error("[orchestrator] Cannot read feature_list.json")
+            await dashboard.push_session_error(session.session_id, "Cannot read feature_list.json")
+            return
+
+        if progress.is_complete:
+            logger.info(f"[orchestrator] All {progress.total} features complete!")
+            await dashboard.push_session_complete(session.session_id)
+            return
+
+        feature = progress.next_incomplete()
+        if feature is None:
+            logger.info("[orchestrator] No more incomplete features — done")
+            await dashboard.push_session_complete(session.session_id)
+            return
+
+        session.iteration += 1
+        feature_id = feature.get("id", "unknown")
+        feature_name = feature.get("description", "unnamed")
+        feature_start_time = time.time()
+
+        logger.info(
+            f"[orchestrator] Iteration {session.iteration}: "
+            f"feature {feature_id} ({progress.passing}/{progress.total} done)"
+        )
+
+        await dashboard.push_sprint(
+            session.session_id,
+            session.iteration,
+            "generate",
+            feature_name,
+            f"Implementing {feature_id}",
+        )
+
+        # Determine complexity tier
+        complexity = feature.get("complexity", "moderate")
+        skip_evaluator = complexity in ("setup", "simple") or use_hardening_prompt
+        max_eval_retries = 0 if skip_evaluator else MAX_EVALUATOR_RETRIES
+
+        if skip_evaluator:
+            logger.info(f"[orchestrator] Feature {feature_id} is {complexity} — skipping evaluator")
+
+        # Generator loop with validator retries
+        evaluator_feedback = None
+        feature_complete = False
+
+        for eval_attempt in range(max_eval_retries + 1):
+            # Run generator (TDD: it writes test first, then implements)
+            await dashboard.push_phase_change(session.session_id, "generate", feature_name)
+
+            gen_result = await run_generator(feature, evaluator_feedback)
+            session.total_cost += gen_result.get("cost_usd", 0)
+            session.cost_by_agent["generator"] += gen_result.get("cost_usd", 0)
+
+            if gen_result.get("error"):
+                logger.error(f"[orchestrator] Generator error: {gen_result['error']}")
+                break
+
+            # Run hard validators with retries
+            await dashboard.push_phase_change(session.session_id, "validate", feature_name)
+
+            validator_passed = False
+            for val_attempt in range(MAX_VALIDATOR_RETRIES):
+                results = await run_all_validators(config=validator_config)
+                if all_passed(results):
+                    # Brownfield: also check for regressions
+                    if baseline:
+                        reg_ok, reg_msg = await check_regression(baseline, config=validator_config)
+                        if not reg_ok:
+                            logger.warning(f"[orchestrator] Regression detected: {reg_msg}")
+                            results.append(ValidationResult(
+                                name="regression", passed=False, output=reg_msg,
+                            ))
+                        else:
+                            validator_passed = True
+                            break
+                    else:
+                        validator_passed = True
+                        break
+
+                logger.warning(
+                    f"[orchestrator] Validators failed (attempt {val_attempt + 1}/{MAX_VALIDATOR_RETRIES})"
+                )
+
+                if val_attempt < MAX_VALIDATOR_RETRIES - 1:
+                    failures_text = format_failures(results)
+                    evaluator_feedback = f"VALIDATOR FAILURES:\n{failures_text}"
+                    gen_result = await run_generator(feature, evaluator_feedback)
+                    session.total_cost += gen_result.get("cost_usd", 0)
+                    session.cost_by_agent["generator"] += gen_result.get("cost_usd", 0)
+
+            if not validator_passed:
+                logger.error(f"[orchestrator] Feature {feature_id}: validators failed after {MAX_VALIDATOR_RETRIES} attempts")
+                break
+
+            # Skip evaluator for setup/simple/hardening features
+            if skip_evaluator:
+                feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
+                logger.info(f"[orchestrator] Feature {feature_id} PASSED (validators only, {complexity})")
+                feature_complete = True
+                await dashboard.push_timeline_event(
+                    session.session_id,
+                    f"{feature_id} passed (validators, {complexity})",
+                    feature_elapsed_ms,
+                )
+                await push_git_commits(session.session_id)
+                break
+
+            # Run evaluator for moderate/complex features
+            await dashboard.push_phase_change(session.session_id, "evaluate", feature_name)
+
+            eval_result = await run_evaluator(feature)
+            session.total_cost += eval_result.get("cost_usd", 0)
+            session.cost_by_agent["evaluator"] += eval_result.get("cost_usd", 0)
+
+            await dashboard.push_evaluator_result(
+                session.session_id,
+                eval_result["score"],
+                eval_result["feedback"],
+                eval_result["dimensionScores"],
+            )
+
+            if eval_result["passed"]:
+                feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
+                logger.info(f"[orchestrator] Feature {feature_id} PASSED (score: {eval_result['score']})")
+                feature_complete = True
+                await dashboard.push_timeline_event(
+                    session.session_id,
+                    f"{feature_id} passed ({eval_result['score']}/10)",
+                    feature_elapsed_ms,
+                )
+                await push_git_commits(session.session_id)
+                break
+            else:
+                logger.warning(
+                    f"[orchestrator] Feature {feature_id} FAILED evaluation "
+                    f"(score: {eval_result['score']}, attempt {eval_attempt + 1}/{max_eval_retries + 1})"
+                )
+                evaluator_feedback = eval_result["feedback"]
+
+        # Update dashboard with feature progress
+        updated_progress = read_progress()
+        if updated_progress:
+            await dashboard.push_feature_update(
+                session.session_id,
+                get_feature_summary(updated_progress),
+            )
+
+        # Push cost update
+        await dashboard.push_cost(
+            session.session_id,
+            total_tokens=0,
+            input_tokens=0,
+            output_tokens=0,
+            estimated_cost=session.total_cost,
+            by_agent=session.cost_by_agent,
+        )
+
+        if not feature_complete:
+            logger.warning(f"[orchestrator] Feature {feature_id} could not be completed — skipping")
+
+        # Brief delay between sessions
+        logger.debug(f"[orchestrator] Waiting {DELAY_BETWEEN_SESSIONS}s before next feature")
+        await asyncio.sleep(DELAY_BETWEEN_SESSIONS)

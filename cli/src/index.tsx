@@ -33,10 +33,13 @@ const helpText = `
     --dashboard-url     URL of the harness dashboard
     --multi             Run multiple features in parallel
     --single            Run a single feature (default mode)
+    --brownfield        Explore existing codebase first, enable regression guards
+    --hardening         Hardening level: auto (default), minimal, thorough, skip
 
   Examples
     $ harness run app_spec.md
     $ harness run app_spec.md --model claude-opus-4-6 --multi
+    $ harness run features.md --brownfield --hardening thorough
     $ harness config
     $ harness history
 `;
@@ -76,6 +79,16 @@ export function parseCli(argv?: readonly string[]) {
       single: {
         type: "boolean",
         default: false,
+      },
+      /** Brownfield mode — explore existing codebase, enable regression guards. */
+      brownfield: {
+        type: "boolean",
+        default: false,
+      },
+      /** Hardening level for brownfield: auto, minimal, thorough, skip. */
+      hardening: {
+        type: "string",
+        default: "auto",
       },
     },
   });

@@ -33,6 +33,10 @@ export interface RunFlags {
   multi?: boolean;
   /** When true, run a single feature (default mode). */
   single?: boolean;
+  /** When true, run in brownfield mode (explore codebase first, regression guards). */
+  brownfield?: boolean;
+  /** Hardening level for brownfield: auto, minimal, thorough, skip. */
+  hardening?: string;
 }
 
 /**
@@ -54,6 +58,10 @@ export interface HarnessRunOptions {
   multi: boolean;
   /** Whether to run in single-feature mode. */
   single: boolean;
+  /** Whether to run in brownfield mode. */
+  brownfield: boolean;
+  /** Hardening level for brownfield. */
+  hardening: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,6 +102,8 @@ export function buildHarnessOptions(
     dashboardUrl: flags.dashboardUrl ?? config.dashboard.url,
     multi: flags.multi ?? false,
     single: flags.single ?? false,
+    brownfield: flags.brownfield ?? false,
+    hardening: flags.hardening ?? "auto",
   };
 }
 

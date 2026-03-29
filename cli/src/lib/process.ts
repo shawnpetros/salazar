@@ -99,6 +99,16 @@ export interface BuildHarnessArgsOptions {
    * Defaults to `false`.
    */
   multi?: boolean;
+  /**
+   * When `true`, passes the `--brownfield` flag to enable brownfield mode
+   * (explorer + hardening + regression guards).
+   */
+  brownfield?: boolean;
+  /**
+   * Hardening level for brownfield mode.
+   * One of: "auto", "minimal", "thorough", "skip".
+   */
+  hardening?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -223,6 +233,17 @@ export function buildHarnessArgs(
   // --multi: boolean flag, only appended when true
   if (options.multi === true) {
     args.push("--multi");
+  }
+
+  // --brownfield: boolean flag, enables explorer + hardening + regression guard
+  if (options.brownfield === true) {
+    args.push("--brownfield");
+
+    // --hardening: only relevant when brownfield is true
+    const hardening = options.hardening ?? "auto";
+    if (hardening !== "auto") {
+      args.push("--hardening", hardening);
+    }
   }
 
   return args;

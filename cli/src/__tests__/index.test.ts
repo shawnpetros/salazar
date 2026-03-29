@@ -69,12 +69,22 @@ describe("F032 — command routing", () => {
   });
 
   it("routes 'run spec.md' to the run command handler", async () => {
-    const { parseCli, routeCommand } = await import("../index.js");
-    const cli = parseCli(["run", "spec.md"]);
-    await routeCommand(cli);
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining("spec.md")
-    );
+    // Create a temp spec file so runCommand doesn't exit(1) for missing file
+    const fs = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const tmpSpec = path.join(os.tmpdir(), "harness-test-spec.md");
+    fs.writeFileSync(tmpSpec, "# Test Spec\n");
+    try {
+      const { parseCli, routeCommand } = await import("../index.js");
+      const cli = parseCli(["run", tmpSpec]);
+      await routeCommand(cli);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining(tmpSpec)
+      );
+    } finally {
+      fs.unlinkSync(tmpSpec);
+    }
   });
 
   it("routes 'config' to the config command handler", async () => {
