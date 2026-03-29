@@ -56,7 +56,9 @@ def make_options(
         extra_allowed_tools: Additional tools to auto-approve.
         mcp_servers: MCP server configs (e.g., Playwright for evaluator).
     """
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # In brownfield mode, HARNESS_WORK_DIR overrides OUTPUT_DIR
+    effective_cwd = Path(os.environ.get("HARNESS_WORK_DIR", str(OUTPUT_DIR)))
+    effective_cwd.mkdir(parents=True, exist_ok=True)
 
     model = model_override or get_model_for_role(role)
 
@@ -74,7 +76,7 @@ def make_options(
     opts = ClaudeAgentOptions(
         system_prompt=system_prompt,
         permission_mode="bypassPermissions",
-        cwd=str(OUTPUT_DIR),
+        cwd=str(effective_cwd),
         model=model,
         max_turns=max_turns,
         max_budget_usd=max_budget_usd,

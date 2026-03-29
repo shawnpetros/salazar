@@ -17,7 +17,7 @@ from harness.agents.planner import run_planner
 from harness.agents.generator import run_generator
 from harness.agents.evaluator import run_evaluator
 from harness.client import OUTPUT_DIR
-from harness.progress import read_progress, get_feature_summary, FEATURE_LIST_PATH
+from harness.progress import read_progress, get_feature_summary, FEATURE_LIST_PATH, feature_list_path
 from harness.validators import (
     run_all_validators, run_tests_only, all_passed, format_failures,
     detect_validators, capture_baseline, check_regression,
@@ -123,8 +123,16 @@ async def run_orchestrator(
     except Exception as e:
         logger.warning(f"[orchestrator] Could not push spec card: {e}")
 
+    # In brownfield mode, work in the spec file's directory (the existing codebase)
+    # In greenfield mode, work in OUTPUT_DIR (fresh directory)
+    work_dir = app_spec_path.parent if brownfield else OUTPUT_DIR
+    if brownfield:
+        logger.info(f"[orchestrator] Brownfield target: {work_dir}")
+        import os
+        os.environ["HARNESS_WORK_DIR"] = str(work_dir)
+
     # Detect validators (auto-detect toolchain)
-    validator_config = detect_validators(OUTPUT_DIR)
+    validator_config = detect_validators(work_dir)
     baseline: BaselineResult | None = None
 
     try:
@@ -136,17 +144,17 @@ async def run_orchestrator(
             await dashboard.push_phase_change(session.session_id, "plan", "Exploring codebase")
 
             explorer_start = time.time()
-            assessment = await run_explorer(OUTPUT_DIR, app_spec_path)
+            assessment = await run_explorer(work_dir, app_spec_path)
             explorer_ms = int((time.time() - explorer_start) * 1000)
 
             if assessment:
                 await dashboard.push_timeline_event(session.session_id, "Explorer: codebase scanned", explorer_ms)
 
                 # Re-detect validators after explorer may have updated assessment
-                validator_config = detect_validators(OUTPUT_DIR)
+                validator_config = detect_validators(work_dir)
 
                 # Capture baseline before any changes
-                baseline = await capture_baseline(OUTPUT_DIR, validator_config)
+                baseline = await capture_baseline(work_dir, validator_config)
                 logger.info(f"[orchestrator] Baseline: {baseline.test_count} tests, passing={baseline.all_passing}")
 
                 # Hardening sprint
@@ -166,7 +174,7 @@ async def run_orchestrator(
 
                         # Write hardening features to feature_list.json temporarily
                         hardening_list = {"features": hardening_features}
-                        FEATURE_LIST_PATH.write_text(json.dumps(hardening_list, indent=2))
+                        feature_list_path(work_dir).write_text(json.dumps(hardening_list, indent=2))
 
                         # Run the hardening features through the normal loop (uses hardening prompt)
                         await _run_feature_loop(
@@ -175,16 +183,16 @@ async def run_orchestrator(
                         )
 
                         # Remove hardening feature_list so planner creates the real one
-                        FEATURE_LIST_PATH.unlink(missing_ok=True)
+                        feature_list_path(work_dir).unlink(missing_ok=True)
 
                         # Re-capture baseline after hardening
-                        baseline = await capture_baseline(OUTPUT_DIR, validator_config)
+                        baseline = await capture_baseline(work_dir, validator_config)
                         logger.info(f"[orchestrator] Post-hardening baseline: {baseline.test_count} tests")
             else:
                 logger.warning("[orchestrator] Explorer failed — proceeding without assessment")
 
         # Phase 1: Planning
-        if not FEATURE_LIST_PATH.exists():
+        if not feature_list_path(work_dir).exists():
             logger.info("[orchestrator] No feature_list.json — running planner")
             await dashboard.push_phase_change(session.session_id, "plan")
 
@@ -196,14 +204,14 @@ async def run_orchestrator(
                 logger.error("[orchestrator] Planner failed — aborting")
                 return
 
-            progress = read_progress()
+            progress = read_progress(work_dir)
             if progress:
                 await dashboard.push_feature_update(session.session_id, get_feature_summary(progress))
                 await dashboard.push_timeline_event(session.session_id, f"Planner: {progress.total} features", planner_ms)
                 logger.info(f"[orchestrator] Planner created {progress.total} features")
 
         # Phase 2: Build loop
-        await _run_feature_loop(session, validator_config, baseline)
+        await _run_feature_loop(session, validator_config, baseline, work_dir=work_dir)
 
     except KeyboardInterrupt:
         logger.info("[orchestrator] Interrupted by user")
@@ -230,10 +238,11 @@ async def _run_feature_loop(
     validator_config: ValidatorConfig | None = None,
     baseline: BaselineResult | None = None,
     use_hardening_prompt: bool = False,
+    work_dir: Path | None = None,
 ) -> None:
     """The core feature loop — shared between main build and hardening sprint."""
     while True:
-        progress = read_progress()
+        progress = read_progress(work_dir)
         if progress is None:
             logger.error("[orchestrator] Cannot read feature_list.json")
             await dashboard.push_session_error(session.session_id, "Cannot read feature_list.json")
@@ -297,11 +306,11 @@ async def _run_feature_loop(
 
             validator_passed = False
             for val_attempt in range(MAX_VALIDATOR_RETRIES):
-                results = await run_all_validators(config=validator_config)
+                results = await run_all_validators(cwd=work_dir, config=validator_config)
                 if all_passed(results):
                     # Brownfield: also check for regressions
                     if baseline:
-                        reg_ok, reg_msg = await check_regression(baseline, config=validator_config)
+                        reg_ok, reg_msg = await check_regression(baseline, cwd=work_dir, config=validator_config)
                         if not reg_ok:
                             logger.warning(f"[orchestrator] Regression detected: {reg_msg}")
                             results.append(ValidationResult(
@@ -375,7 +384,7 @@ async def _run_feature_loop(
                 evaluator_feedback = eval_result["feedback"]
 
         # Update dashboard with feature progress
-        updated_progress = read_progress()
+        updated_progress = read_progress(work_dir)
         if updated_progress:
             await dashboard.push_feature_update(
                 session.session_id,

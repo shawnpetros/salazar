@@ -9,6 +9,11 @@ from harness.client import OUTPUT_DIR
 FEATURE_LIST_PATH = OUTPUT_DIR / "feature_list.json"
 
 
+def feature_list_path(work_dir: Path | None = None) -> Path:
+    """Get the feature_list.json path for a given work directory."""
+    return (work_dir or OUTPUT_DIR) / "feature_list.json"
+
+
 @dataclass
 class ProgressReport:
     total: int
@@ -31,12 +36,13 @@ class ProgressReport:
         return None
 
 
-def read_progress() -> ProgressReport | None:
+def read_progress(work_dir: Path | None = None) -> ProgressReport | None:
     """Read the feature list and return a progress report."""
-    if not FEATURE_LIST_PATH.exists():
+    path = feature_list_path(work_dir)
+    if not path.exists():
         return None
 
-    data = json.loads(FEATURE_LIST_PATH.read_text())
+    data = json.loads(path.read_text())
     features = data if isinstance(data, list) else data.get("features", [])
 
     passing = sum(1 for f in features if f.get("passes", False))
