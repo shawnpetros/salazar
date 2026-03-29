@@ -1,0 +1,56 @@
+{
+  "features": [
+    {
+      "id": "H001",
+      "category": "hardening",
+      "description": "Fix 3 pre-existing test failures: setup.test.ts > expects package name to be harness-cli, setup.test.ts > expects bin field 'harness', version-help-f034.test.ts > expects name harness-cli in help output",
+      "complexity": "simple",
+      "priority": 1,
+      "steps": [
+        "Given 3 tests are currently failing",
+        "When I investigate and fix each failure",
+        "Then all existing tests pass"
+      ],
+      "passes": false
+    },
+    {
+      "id": "H002",
+      "category": "hardening",
+      "description": "Create src/lib/session-state.ts and a corresponding test file covering: no PID file, live PID, dead PID cleanup, and missing session JSON.",
+      "complexity": "simple",
+      "priority": 2,
+      "steps": [
+        "Given No tests exist for the session-state module (src/lib/session-state.ts) which doesn't exist yet. This module is the core of the spec \u2014 PID file reads/writes, staleness detection, cleanup.",
+        "When I Create src/lib/session-state.ts and a corresponding test file covering: no PID file, live PID, dead PID cleanup, and missing session JSON.",
+        "Then the validator surface area covers the planned changes"
+      ],
+      "passes": false
+    },
+    {
+      "id": "H003",
+      "category": "hardening",
+      "description": "Create src/commands/status.tsx and a test file covering all 4 spec scenarios before or alongside implementation.",
+      "complexity": "simple",
+      "priority": 2,
+      "steps": [
+        "Given No tests exist for src/commands/status.tsx (file doesn't exist yet). The spec defines 4 explicit test scenarios.",
+        "When I Create src/commands/status.tsx and a test file covering all 4 spec scenarios before or alongside implementation.",
+        "Then the validator surface area covers the planned changes"
+      ],
+      "passes": false
+    },
+    {
+      "id": "H004",
+      "category": "hardening",
+      "description": "Add missing toolchain scripts: lint",
+      "complexity": "setup",
+      "priority": 1,
+      "steps": [
+        "Given package.json is missing scripts for: lint",
+        "When I add the appropriate scripts using existing project dependencies",
+        "Then all validator commands exist and can be run"
+      ],
+      "passes": false
+    }
+  ]
+}
