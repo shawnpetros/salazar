@@ -405,7 +405,36 @@ async def _run_feature_loop(
         )
 
         if not feature_complete:
-            logger.warning(f"[orchestrator] Feature {feature_id} could not be completed — skipping")
+            logger.error(f"[orchestrator] Feature {feature_id} FAILED after all retries")
+
+            # Rollback: revert any uncommitted changes from the failed feature
+            try:
+                rollback_result = subprocess.run(
+                    ["git", "checkout", "."],
+                    cwd=str(work_dir or OUTPUT_DIR),
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                if rollback_result.returncode == 0:
+                    logger.info(f"[orchestrator] Rolled back uncommitted changes from {feature_id}")
+                    await dashboard.push_timeline_event(
+                        session.session_id,
+                        f"{feature_id} FAILED — rolled back",
+                    )
+                else:
+                    logger.warning(f"[orchestrator] Rollback failed: {rollback_result.stderr}")
+            except Exception as e:
+                logger.warning(f"[orchestrator] Rollback error: {e}")
+
+            # In brownfield mode, stop on failure — don't leave a broken codebase
+            if work_dir and work_dir != OUTPUT_DIR:
+                logger.error(f"[orchestrator] Brownfield mode — stopping run. Failed feature: {feature_id}")
+                await dashboard.push_session_error(
+                    session.session_id,
+                    f"Feature {feature_id} failed after all retries. Rolled back changes.",
+                )
+                return
 
         # Brief delay between sessions
         logger.debug(f"[orchestrator] Waiting {DELAY_BETWEEN_SESSIONS}s before next feature")
