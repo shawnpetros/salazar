@@ -72,7 +72,7 @@ async def run_generator(feature: dict, evaluator_feedback: str | None = None) ->
 
     # 15 minute timeout per generator session — prevents infinite hangs
     # from interactive CLIs (create-next-app, shadcn init) or long npm installs
-    SESSION_TIMEOUT = 900  # 15 minutes
+    SESSION_TIMEOUT = 300  # 5 minutes — one feature shouldn't take longer
 
     async def _run_session():
         nonlocal cost_usd

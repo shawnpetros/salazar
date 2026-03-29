@@ -605,3 +605,4 @@
 2026-03-29 14:22:18,677 [harness.generator] INFO: [generator] Starting feature F004: Define SessionState, SessionPhase enums and core session scalar types in lib/types.ts
 2026-03-29 14:22:18,680 [claude_agent_sdk._internal.transport.subprocess_cli] INFO: Using bundled Claude Code CLI: /Users/shawnpetros/projects/agent-id/salazar/.venv/lib/python3.14/site-packages/claude_agent_sdk/_bundled/claude
 2026-03-29 14:22:21,002 [claude_agent_sdk._internal.query] DEBUG: Waiting for first result before closing stdin (sdk_mcp_servers=0, has_hooks=True)
+2026-03-29 14:37:18,661 [claude_agent_sdk._internal.query] DEBUG: Read task cancelled
