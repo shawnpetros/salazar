@@ -78,18 +78,45 @@ Build a lightweight Next.js dashboard (dark mode, Catppuccin Mocha theme) deploy
 4. **Feature complexity tiers** — don't waste 5 minutes evaluating "npm install typescript"
 5. **Immutable feature list** — generator can only flip `passes: false` → `true`, never delete or modify features
 
+### TDD Enforcement
+
+The generator uses test-driven development:
+1. Write failing test from BDD scenario (red)
+2. Confirm it fails — if it passes before implementation, rewrite it
+3. Implement minimum code to make it pass (green)
+4. Run ALL tests — no regressions
+5. Refactor if needed
+
+### Brownfield Mode
+
+For existing codebases, add an **Explorer agent** that runs first:
+
+1. **Explorer** scans the codebase — detects toolchain (package manager, test framework, build scripts), produces `codebase_context.md` and `validator_assessment.json`
+2. **Hardening sprint** — if test coverage is insufficient for the planned changes, add tests scoped to the blast radius (not the whole codebase). Three levels: `minimal` (fix broken), `thorough` (test everything we'll touch), `skip` (trust what's there)
+3. **Baseline capture** — record test count and validator state before changes
+4. **Regression guard** — after each feature, verify test count didn't decrease and all validators still pass
+
+```bash
+python -m harness.main features.md --brownfield --hardening auto
+```
+
+The generator prompt adds brownfield rules: follow existing patterns, minimal diff, read before writing, no unnecessary dependency changes.
+
 ### Proof
 
 Point this harness at a spec for a "mini JWT library" (ES256, Web Crypto API, zero dependencies). Result: 38/38 features, 76 tests, 96% coverage, 70 minutes, $9.27 on Claude Max.
+
+Then point it at a spec for its own Ink TUI. Result: 63/63 features, 1,141 tests, fully functional CLI. The tool built its own interface.
 
 ---
 
 ## To replicate
 
 1. `pip install claude-agent-sdk httpx gitpython`
-2. Write the orchestrator, agents (planner/generator/evaluator), validators, and prompts
+2. Write the orchestrator, agents (planner/generator/evaluator/explorer), validators, and prompts
 3. Write a product spec in markdown
 4. Run: `python -m harness.main spec.md --model claude-sonnet-4-6 -v`
-5. Watch it build
+5. For brownfield: `python -m harness.main features.md --brownfield --hardening auto`
+6. Watch it build
 
 Reference implementation: https://github.com/shawnpetros/long-running-harness
