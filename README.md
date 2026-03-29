@@ -60,8 +60,16 @@ An autonomous coding orchestrator that builds software end-to-end from a markdow
 # Install the CLI
 cd cli && npm install && npm link
 
-# Run against any spec
+# Greenfield — build from a spec
 harness run my-app-spec.md
+
+# Brownfield — work on an existing codebase
+harness run features.md --brownfield
+
+# Brownfield with hardening control
+harness run features.md --brownfield --hardening thorough  # add tests for blast radius
+harness run features.md --brownfield --hardening minimal   # only fix broken validators
+harness run features.md --brownfield --hardening skip      # trust existing tests
 
 # With model tiers
 harness run spec.md --model claude-sonnet-4-6 --model-evaluator claude-opus-4-6
@@ -92,6 +100,24 @@ harness run spec.md --dashboard-url https://your-dashboard.vercel.app
 | `simple` | All 4 gates | **Skipped** | ~3-4 min |
 | `moderate` | All 4 gates | Full review | ~6-8 min |
 | `complex` | All 4 gates | Full review | ~8-12 min |
+
+### Brownfield Mode
+
+For existing codebases, the harness adds three phases before feature work:
+
+1. **Explorer** — scans the codebase, detects toolchain (package manager, test framework, build scripts), produces `codebase_context.md` and `validator_assessment.json`
+2. **Hardening sprint** — if the safety net is insufficient for the planned work, adds tests and fixes broken validators *before* building features. Scoped to the blast radius, not the whole codebase.
+3. **Regression guard** — captures a baseline (test count, validator state) before changes. After each feature, verifies test count didn't decrease and all validators still pass.
+
+The generator uses **TDD** (test-driven development) in both modes:
+- Write failing test from BDD scenario (red)
+- Implement until test passes (green)
+- Run all tests to check for regressions
+- Refactor if needed
+
+```bash
+harness run add-auth.md --brownfield --hardening auto
+```
 
 ### Model Tiers
 

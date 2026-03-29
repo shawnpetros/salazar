@@ -45,6 +45,18 @@ def parse_args() -> argparse.Namespace:
         help="Skip architect agent — run as single service (bypass monorepo detection)",
     )
     parser.add_argument(
+        "--brownfield",
+        action="store_true",
+        help="Brownfield mode — explore existing codebase first, enable regression guards",
+    )
+    parser.add_argument(
+        "--hardening",
+        type=str,
+        default="auto",
+        choices=["auto", "minimal", "thorough", "skip"],
+        help="Hardening level for brownfield: auto (default), minimal, thorough, skip",
+    )
+    parser.add_argument(
         "--dashboard-url",
         type=str,
         default="",
@@ -125,16 +137,22 @@ def main() -> None:
         os.environ["HARNESS_MODEL_EVALUATOR"] = args.model_evaluator
 
     from harness.client import get_model_for_role
-    mode = "single" if args.single else "multi (architect-driven)"
+    mode = "brownfield" if args.brownfield else ("single" if args.single else "multi (architect-driven)")
     logger.info(f"Starting harness with spec: {args.spec}")
     logger.info(f"Mode: {mode}")
+    if args.brownfield:
+        logger.info(f"Hardening: {args.hardening}")
     logger.info(f"Models — planner: {get_model_for_role('planner')}, generator: {get_model_for_role('generator')}, evaluator: {get_model_for_role('evaluator')}")
     logger.info(f"Log file: {log_file}")
     if args.dashboard_url:
         logger.info(f"Dashboard: {args.dashboard_url}")
 
-    if args.single:
-        asyncio.run(run_orchestrator(args.spec.resolve()))
+    if args.single or args.brownfield:
+        asyncio.run(run_orchestrator(
+            args.spec.resolve(),
+            brownfield=args.brownfield,
+            hardening=args.hardening,
+        ))
     else:
         asyncio.run(run_multi_orchestrator(args.spec.resolve()))
 
