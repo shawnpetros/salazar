@@ -1,6 +1,5 @@
 "use client";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import type { SpecData } from "@/lib/types";
 
@@ -13,7 +12,7 @@ export function SpecCard({ data }: { data: SpecData | null }) {
         {data.name}
       </h2>
       {data.description && (
-        <ScrollArea className="h-20 mt-2 overflow-y-auto">
+        <div className="mt-2 max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-[#45475a] scrollbar-track-transparent">
           <ReactMarkdown
             components={{
               p: ({ children }) => <p className="text-sm text-[#9399b2] leading-relaxed my-1">{children}</p>,
@@ -32,7 +31,7 @@ export function SpecCard({ data }: { data: SpecData | null }) {
           >
             {data.description}
           </ReactMarkdown>
-        </ScrollArea>
+        </div>
       )}
     </div>
   );
