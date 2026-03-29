@@ -64,6 +64,7 @@ async def run_generator(feature: dict, evaluator_feedback: str | None = None) ->
         system_prompt=system_prompt,
         role="generator",
         max_budget_usd=50.0,
+        max_turns=50,  # Per-feature cap — one feature shouldn't need 50+ tool calls
     )
 
     cost_usd = 0.0

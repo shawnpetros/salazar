@@ -1,5 +1,18 @@
 # Salazar Dashboard v2
 
+## IMPORTANT: Pre-Initialized Project
+
+The project is ALREADY initialized. Do NOT run `create-next-app`, `npm init`, or any project scaffolding commands. The following are already installed and configured:
+
+- Next.js 16 with App Router and TypeScript strict mode
+- Tailwind CSS
+- shadcn/ui (Card, Badge, Progress, ScrollArea, Separator components)
+- react-markdown
+- ESLint
+- Git initialized
+
+Start directly with writing components, routes, and logic. The `app/layout.tsx` and `app/page.tsx` already exist — modify them.
+
 ## Overview
 
 A Next.js monitoring dashboard for the Salazar autonomous coding orchestrator. Shows real-time progress of running sessions, historical session data, and detailed feature/evaluator/cost breakdowns. Reads from Salazar's SQLite database locally, with optional Redis sync for remote deployment.

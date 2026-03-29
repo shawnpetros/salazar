@@ -1,0 +1,141 @@
+2026-03-29 09:12:25,906 [harness.main] INFO: Starting harness with spec: dashboard_v2_spec.md
+2026-03-29 09:12:25,906 [harness.main] INFO: Mode: single
+2026-03-29 09:12:25,906 [harness.main] INFO: Models — planner: claude-sonnet-4-6, generator: claude-sonnet-4-6, evaluator: claude-sonnet-4-6
+2026-03-29 09:12:25,906 [harness.main] INFO: Log file: /Users/shawnpetros/projects/agent-id/salazar/logs/harness-20260329-091225.log
+2026-03-29 09:12:25,906 [harness.main] INFO: Dashboard: https://agent-id-shawnpetros-projects.vercel.app
+2026-03-29 09:12:25,906 [asyncio] DEBUG: Using selector: KqueueSelector
+2026-03-29 09:12:25,907 [harness.orchestrator] INFO: [orchestrator] Starting session 88cb3eea4187
+2026-03-29 09:12:25,985 [httpcore.connection] DEBUG: connect_tcp.started host='agent-id-shawnpetros-projects.vercel.app' port=443 local_address=None timeout=5.0 socket_options=None
+2026-03-29 09:12:26,066 [httpcore.connection] DEBUG: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x10726d160>
+2026-03-29 09:12:26,066 [httpcore.connection] DEBUG: start_tls.started ssl_context=<ssl.SSLContext object at 0x106ecdeb0> server_hostname='agent-id-shawnpetros-projects.vercel.app' timeout=5.0
+2026-03-29 09:12:26,100 [httpcore.connection] DEBUG: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1071d7750>
+2026-03-29 09:12:26,100 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:12:26,100 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:12:26,100 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:12:26,100 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:12:26,100 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:12:26,270 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:12:26 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::x6ws9-1774800746182-91367abd7892'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:12:26,271 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:12:26,271 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:12:26,272 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:12:26,272 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:12:26,272 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:12:26,273 [harness.dashboard] DEBUG: [dashboard] Pushed status for session 88cb3eea4187
+2026-03-29 09:12:26,274 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:12:26,274 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:12:26,274 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:12:26,274 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:12:26,274 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:12:26,424 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:12:26 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::xck74-1774800746357-8f36ee7298a8'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:12:26,424 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:12:26,425 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:12:26,425 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:12:26,425 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:12:26,425 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:12:26,426 [harness.dashboard] DEBUG: [dashboard] Pushed spec for session 88cb3eea4187
+2026-03-29 09:12:26,433 [harness.storage] INFO: [storage] Database ready at /Users/shawnpetros/.salazar/salazar.db
+2026-03-29 09:12:26,434 [harness.storage] DEBUG: [storage] Session 88cb3eea4187 created
+2026-03-29 09:12:26,434 [harness.validators] INFO: [validators] Detected: pm=npm, typecheck=no, lint=no, build=no, test=no
+2026-03-29 09:12:26,435 [harness.orchestrator] INFO: [orchestrator] No feature_list.json — running planner
+2026-03-29 09:12:26,435 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:12:26,436 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:12:26,436 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:12:26,436 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:12:26,436 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:12:26,549 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:12:26 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::2b77p-1774800746516-89689036e010'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:12:26,549 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:12:26,550 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:12:26,550 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:12:26,550 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:12:26,550 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:12:26,551 [harness.dashboard] DEBUG: [dashboard] Pushed status for session 88cb3eea4187
+2026-03-29 09:12:26,551 [harness.planner] INFO: [planner] Starting planner agent
+2026-03-29 09:12:26,554 [claude_agent_sdk._internal.transport.subprocess_cli] INFO: Using bundled Claude Code CLI: /Users/shawnpetros/projects/agent-id/salazar/.venv/lib/python3.14/site-packages/claude_agent_sdk/_bundled/claude
+2026-03-29 09:12:29,486 [claude_agent_sdk._internal.query] DEBUG: Waiting for first result before closing stdin (sdk_mcp_servers=0, has_hooks=True)
+2026-03-29 09:18:48,876 [harness.planner] INFO: [planner] Session complete: cost=$0.5743, turns=7
+2026-03-29 09:18:49,039 [harness.planner] INFO: [planner] Created feature_list.json (64050 bytes)
+2026-03-29 09:18:49,044 [httpcore.connection] DEBUG: close.started
+2026-03-29 09:18:49,045 [httpcore.connection] DEBUG: close.complete
+2026-03-29 09:18:49,045 [httpcore.connection] DEBUG: connect_tcp.started host='agent-id-shawnpetros-projects.vercel.app' port=443 local_address=None timeout=5.0 socket_options=None
+2026-03-29 09:18:49,194 [httpcore.connection] DEBUG: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x10757ed50>
+2026-03-29 09:18:49,195 [httpcore.connection] DEBUG: start_tls.started ssl_context=<ssl.SSLContext object at 0x106ecdeb0> server_hostname='agent-id-shawnpetros-projects.vercel.app' timeout=5.0
+2026-03-29 09:18:49,229 [httpcore.connection] DEBUG: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x107578d60>
+2026-03-29 09:18:49,231 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,232 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:18:49,232 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,233 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:18:49,233 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,440 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:18:49 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::pwn4r-1774801129326-1dc1ce776a1f'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:18:49,441 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:18:49,442 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,443 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:18:49,444 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:18:49,445 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:18:49,445 [harness.dashboard] DEBUG: [dashboard] Pushed features for session 88cb3eea4187
+2026-03-29 09:18:49,447 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,447 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:18:49,447 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,447 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:18:49,447 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,570 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:18:49 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::29rmg-1774801129541-602afb407e7f'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:18:49,571 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:18:49,571 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,572 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:18:49,572 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:18:49,573 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:18:49,573 [harness.dashboard] DEBUG: [dashboard] Pushed timeline for session 88cb3eea4187
+2026-03-29 09:18:49,573 [harness.orchestrator] INFO: [orchestrator] Planner created 105 features
+2026-03-29 09:18:49,585 [harness.orchestrator] INFO: [orchestrator] Iteration 1: feature F001 (0/105 done)
+2026-03-29 09:18:49,586 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,586 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:18:49,586 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,587 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:18:49,587 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,709 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:18:49 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::4tv9t-1774801129681-a244de23de89'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:18:49,710 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:18:49,711 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,712 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:18:49,712 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:18:49,712 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:18:49,713 [harness.dashboard] DEBUG: [dashboard] Pushed sprint for session 88cb3eea4187
+2026-03-29 09:18:49,713 [harness.orchestrator] INFO: [orchestrator] Feature F001 is setup — skipping evaluator
+2026-03-29 09:18:49,714 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,715 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:18:49,715 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,715 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:18:49,716 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:18:49,831 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:18:49 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::zn5fl-1774801129809-84fecec377c1'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:18:49,831 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:18:49,832 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:18:49,832 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:18:49,833 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:18:49,833 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:18:49,834 [harness.dashboard] DEBUG: [dashboard] Pushed status for session 88cb3eea4187
+2026-03-29 09:18:49,834 [harness.generator] INFO: [generator] Starting feature F001: Initialize Next.js 16 project with package.json, tsconfig strict ESM, and directory scaffold
+2026-03-29 09:18:49,839 [claude_agent_sdk._internal.transport.subprocess_cli] INFO: Using bundled Claude Code CLI: /Users/shawnpetros/projects/agent-id/salazar/.venv/lib/python3.14/site-packages/claude_agent_sdk/_bundled/claude
+2026-03-29 09:18:52,879 [claude_agent_sdk._internal.query] DEBUG: Waiting for first result before closing stdin (sdk_mcp_servers=0, has_hooks=True)
+2026-03-29 09:20:46,052 [harness.generator] INFO: [generator] Feature F001 session complete: cost=$0.3453, turns=13
+2026-03-29 09:20:46,218 [harness.validators] INFO: [validators] Detected: pm=npm, typecheck=no, lint=no, build=no, test=no
+2026-03-29 09:20:46,219 [httpcore.connection] DEBUG: close.started
+2026-03-29 09:20:46,220 [httpcore.connection] DEBUG: close.complete
+2026-03-29 09:20:46,220 [httpcore.connection] DEBUG: connect_tcp.started host='agent-id-shawnpetros-projects.vercel.app' port=443 local_address=None timeout=5.0 socket_options=None
+2026-03-29 09:20:46,251 [httpcore.connection] DEBUG: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x10757aea0>
+2026-03-29 09:20:46,251 [httpcore.connection] DEBUG: start_tls.started ssl_context=<ssl.SSLContext object at 0x106ecdeb0> server_hostname='agent-id-shawnpetros-projects.vercel.app' timeout=5.0
+2026-03-29 09:20:46,281 [httpcore.connection] DEBUG: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x10725a8d0>
+2026-03-29 09:20:46,282 [httpcore.http11] DEBUG: send_request_headers.started request=<Request [b'POST']>
+2026-03-29 09:20:46,282 [httpcore.http11] DEBUG: send_request_headers.complete
+2026-03-29 09:20:46,283 [httpcore.http11] DEBUG: send_request_body.started request=<Request [b'POST']>
+2026-03-29 09:20:46,283 [httpcore.http11] DEBUG: send_request_body.complete
+2026-03-29 09:20:46,283 [httpcore.http11] DEBUG: receive_response_headers.started request=<Request [b'POST']>
+2026-03-29 09:20:46,422 [httpcore.http11] DEBUG: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'public, max-age=0, must-revalidate'), (b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Date', b'Sun, 29 Mar 2026 16:20:46 GMT'), (b'Server', b'Vercel'), (b'Strict-Transport-Security', b'max-age=63072000; includeSubDomains; preload'), (b'X-Matched-Path', b'/api/ingest'), (b'X-Robots-Tag', b'noindex'), (b'X-Vercel-Cache', b'MISS'), (b'X-Vercel-Id', b'sfo1::iad1::hvv94-1774801246378-56e3210a2a54'), (b'Transfer-Encoding', b'chunked')])
+2026-03-29 09:20:46,423 [httpx] INFO: HTTP Request: POST https://agent-id-shawnpetros-projects.vercel.app/api/ingest "HTTP/1.1 200 OK"
+2026-03-29 09:20:46,423 [httpcore.http11] DEBUG: receive_response_body.started request=<Request [b'POST']>
+2026-03-29 09:20:46,423 [httpcore.http11] DEBUG: receive_response_body.complete
+2026-03-29 09:20:46,424 [httpcore.http11] DEBUG: response_closed.started
+2026-03-29 09:20:46,424 [httpcore.http11] DEBUG: response_closed.complete
+2026-03-29 09:20:46,424 [harness.dashboard] DEBUG: [dashboard] Pushed status for session 88cb3eea4187
+2026-03-29 09:20:46,425 [harness.validators] WARNING: [validators] No validators detected in /Users/shawnpetros/projects/agent-id/output
+2026-03-29 09:20:46,425 [harness.orchestrator] WARNING: [orchestrator] Validators failed (attempt 1/3)
+2026-03-29 09:20:46,425 [harness.generator] INFO: [generator] Starting feature F001: Initialize Next.js 16 project with package.json, tsconfig strict ESM, and directory scaffold
+2026-03-29 09:20:46,427 [claude_agent_sdk._internal.transport.subprocess_cli] INFO: Using bundled Claude Code CLI: /Users/shawnpetros/projects/agent-id/salazar/.venv/lib/python3.14/site-packages/claude_agent_sdk/_bundled/claude
+2026-03-29 09:20:48,465 [claude_agent_sdk._internal.query] DEBUG: Waiting for first result before closing stdin (sdk_mcp_servers=0, has_hooks=True)
