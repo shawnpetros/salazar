@@ -305,6 +305,8 @@ async def _run_feature_loop(
                 break
 
             # Run hard validators with retries
+            # Re-detect validators each time (first feature may create package.json)
+            validator_config = detect_validators(work_dir or OUTPUT_DIR)
             await dashboard.push_phase_change(session.session_id, "validate", feature_name)
 
             validator_passed = False
