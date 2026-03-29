@@ -1,0 +1,63 @@
+{
+  "toolchain": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "status": "passing"
+    },
+    "lint": {
+      "command": null,
+      "status": "missing"
+    },
+    "build": {
+      "command": "npm run build",
+      "status": "passing"
+    },
+    "test": {
+      "command": "npm run test",
+      "status": "passing",
+      "test_count": 1141,
+      "failures": 0
+    }
+  },
+  "package_manager": "npm",
+  "test_framework": "vitest",
+  "coverage": {
+    "overall_percent": null,
+    "has_coverage_config": false
+  },
+  "pre_existing_failures": [],
+  "gaps": [
+    {
+      "severity": "critical",
+      "issue": "No tests exist for src/lib/session-state.ts (file not yet created). This module will own PID-file I/O, kill-0 liveness checks, and stale-session cleanup — all four spec scenarios depend on it being correct.",
+      "recommendation": "Write unit tests for session-state.ts before or alongside implementation: (1) no PID file → returns null, (2) live PID → returns session metadata, (3) dead PID → cleans up files, (4) live PID but missing session JSON → graceful fallback."
+    },
+    {
+      "severity": "critical",
+      "issue": "No tests exist for src/commands/status.tsx (file not yet created). The command's output format and branching logic are unverified.",
+      "recommendation": "Add Ink render tests (like existing command tests) covering active-session and no-session output paths."
+    },
+    {
+      "severity": "high",
+      "issue": "src/index.tsx command routing has no test coverage for the new `status` command dispatch path.",
+      "recommendation": "Extend existing routing tests (likely src/__tests__/app-f035.test.ts or similar) to assert `harness status` routes to statusCommand()."
+    },
+    {
+      "severity": "high",
+      "issue": "PID liveness check (kill -0) is OS-specific and involves real process-table side effects. No test isolation pattern exists yet for process-ID checks.",
+      "recommendation": "Inject a `isAlive(pid)` function into session-state.ts so tests can mock it without spawning real processes."
+    },
+    {
+      "severity": "medium",
+      "issue": "No lint toolchain (no ESLint config, no lint script). New files will be written without style enforcement.",
+      "recommendation": "Low priority for this feature, but consider adding eslint post-implementation to prevent style drift."
+    },
+    {
+      "severity": "low",
+      "issue": "No code coverage reporting configured. It's unclear what percentage of lines are exercised.",
+      "recommendation": "Add vitest.config.ts with coverage: { provider: 'v8' } to enable coverage reporting."
+    }
+  ],
+  "hardening_needed": true,
+  "hardening_scope": "targeted"
+}

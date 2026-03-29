@@ -1,4 +1,4 @@
-# Prompt: Build an Autonomous Coding Harness
+# Prompt: Build Salazar — An Autonomous Coding Orchestrator
 
 > Paste this into Claude Code (or any Claude session with tool access) to replicate the core build. Assumes you've read Anthropic's "Effective Harnesses for Long-Running Agents" research.
 

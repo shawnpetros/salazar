@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * harness-cli entry point.
+ * salazar CLI entry point.
  *
  * Parses CLI arguments via meow and routes to the appropriate command handler.
  *
@@ -18,7 +18,7 @@ import { historyCommand, historyDetailCommand } from "./commands/history.js";
 /** CLI help text shown when --help is passed or no command is provided. */
 const helpText = `
   Usage
-    $ harness <command> [options]
+    $ salazar <command> [options]
 
   Commands
     run <spec>    Run the harness against a feature spec file
@@ -37,11 +37,11 @@ const helpText = `
     --hardening         Hardening level: auto (default), minimal, thorough, skip
 
   Examples
-    $ harness run app_spec.md
-    $ harness run app_spec.md --model claude-opus-4-6 --multi
-    $ harness run features.md --brownfield --hardening thorough
-    $ harness config
-    $ harness history
+    $ salazar run app_spec.md
+    $ salazar run app_spec.md --model claude-opus-4-6 --multi
+    $ salazar run features.md --brownfield --hardening thorough
+    $ salazar config
+    $ salazar history
 `;
 
 /**
@@ -109,7 +109,7 @@ export async function routeCommand(
       const specPath = rest[0];
       if (!specPath) {
         console.error("Error: run command requires a spec file path.");
-        console.error("Usage: harness run <spec.md>");
+        console.error("Usage: salazar run <spec.md>");
         process.exit(1);
       }
       await runCommand(specPath);
@@ -122,7 +122,7 @@ export async function routeCommand(
         const modelName = rest[2];
         if (!modelName) {
           console.error("Error: config set model requires a model name.");
-          console.error("Usage: harness config set model <model-name>");
+          console.error("Usage: salazar config set model <model-name>");
           process.exit(1);
         }
         configSetModelCommand(modelName);
@@ -130,7 +130,7 @@ export async function routeCommand(
         const url = rest[2];
         if (!url) {
           console.error("Error: config set dashboard-url requires a URL.");
-          console.error("Usage: harness config set dashboard-url <url>");
+          console.error("Usage: salazar config set dashboard-url <url>");
           process.exit(1);
         }
         configSetDashboardUrlCommand(url);
@@ -138,7 +138,7 @@ export async function routeCommand(
         const secret = rest[2];
         if (!secret) {
           console.error("Error: config set dashboard-secret requires a secret.");
-          console.error("Usage: harness config set dashboard-secret <secret>");
+          console.error("Usage: salazar config set dashboard-secret <secret>");
           process.exit(1);
         }
         configSetDashboardSecretCommand(secret);

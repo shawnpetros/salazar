@@ -1,0 +1,288 @@
+{
+  "features": [
+    {
+      "id": "F001",
+      "category": "types",
+      "description": "Define SessionMetadata interface and SessionState discriminated union for session detection",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given src/lib/session-state.ts is created",
+        "When SessionMetadata is imported",
+        "Then it has fields: sessionId (string), specPath (string), startedAt (string), pid (number)",
+        "When SessionState is imported",
+        "Then it is a discriminated union with variants: { status: 'inactive' }, { status: 'active', pid: number, metadata: SessionMetadata }, { status: 'stale', pid: number }"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F002",
+      "category": "core",
+      "description": "Implement PID file and session metadata file path helpers in session-state.ts",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given os.homedir() returns '/home/user'",
+        "When getPidFilePath() is called",
+        "Then it returns '/home/user/.harness/current.pid'",
+        "When getSessionFilePath() is called",
+        "Then it returns '/home/user/.harness/current-session.json'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F003",
+      "category": "core",
+      "description": "Implement readPidFile() that reads and parses the PID integer from ~/.harness/current.pid",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given ~/.harness/current.pid does not exist",
+        "When readPidFile() is called",
+        "Then it returns null",
+        "Given ~/.harness/current.pid contains '92303\\n'",
+        "When readPidFile() is called",
+        "Then it returns the integer 92303",
+        "Given ~/.harness/current.pid contains non-numeric content",
+        "When readPidFile() is called",
+        "Then it returns null"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F004",
+      "category": "core",
+      "description": "Implement isProcessAlive() that uses kill -0 to check if a PID is still running",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given a PID that corresponds to a running process",
+        "When isProcessAlive(pid) is called",
+        "Then it returns true",
+        "Given a PID that does not correspond to any running process",
+        "When isProcessAlive(pid) is called",
+        "Then it returns false",
+        "Given process.kill throws EPERM (process exists but permission denied)",
+        "When isProcessAlive(pid) is called",
+        "Then it returns true (process is alive, just not owned by us)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F005",
+      "category": "core",
+      "description": "Implement readSessionMetadata() that reads and parses ~/.harness/current-session.json",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given ~/.harness/current-session.json does not exist",
+        "When readSessionMetadata() is called",
+        "Then it returns null",
+        "Given ~/.harness/current-session.json contains valid JSON with sessionId, specPath, startedAt, pid",
+        "When readSessionMetadata() is called",
+        "Then it returns a SessionMetadata object with all fields populated",
+        "Given ~/.harness/current-session.json contains malformed JSON",
+        "When readSessionMetadata() is called",
+        "Then it returns null without throwing"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F006",
+      "category": "core",
+      "description": "Implement cleanupStaleFiles() that removes ~/.harness/current.pid and current-session.json",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given both ~/.harness/current.pid and current-session.json exist",
+        "When cleanupStaleFiles() is called",
+        "Then both files are removed from disk",
+        "Given only ~/.harness/current.pid exists (no session JSON)",
+        "When cleanupStaleFiles() is called",
+        "Then the PID file is removed and no error is thrown for the missing session file",
+        "Given neither file exists",
+        "When cleanupStaleFiles() is called",
+        "Then no error is thrown"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F007",
+      "category": "core",
+      "description": "Implement getSessionState() that orchestrates PID file check, liveness test, and metadata read",
+      "priority": 1,
+      "complexity": "moderate",
+      "steps": [
+        "Given ~/.harness/current.pid does not exist",
+        "When getSessionState() is called",
+        "Then it returns { status: 'inactive' }",
+        "Given ~/.harness/current.pid exists with a live PID and current-session.json is present",
+        "When getSessionState() is called",
+        "Then it returns { status: 'active', pid, metadata } with all fields",
+        "Given ~/.harness/current.pid exists but the PID process is dead",
+        "When getSessionState() is called",
+        "Then it returns { status: 'stale', pid } and calls cleanupStaleFiles()",
+        "Given ~/.harness/current.pid exists with a live PID but current-session.json is missing",
+        "When getSessionState() is called",
+        "Then it returns { status: 'active', pid, metadata: null }"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F008",
+      "category": "core",
+      "description": "Implement writePidFile() and writeSessionMetadata() for harness run startup lifecycle",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given a valid PID integer",
+        "When writePidFile(pid) is called",
+        "Then ~/.harness/current.pid is created containing the PID as a string",
+        "Given a SessionMetadata object",
+        "When writeSessionMetadata(metadata) is called",
+        "Then ~/.harness/current-session.json is created with the JSON-serialized metadata",
+        "Given ~/.harness/ directory does not yet exist",
+        "When writePidFile() or writeSessionMetadata() is called",
+        "Then the directory is created recursively before writing"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F009",
+      "category": "core",
+      "description": "Implement formatElapsed() that converts an ISO startedAt timestamp to a human-readable elapsed string",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given a startedAt timestamp that is exactly 23 minutes and 15 seconds in the past",
+        "When formatElapsed(startedAt) is called",
+        "Then it returns '23m 15s'",
+        "Given a startedAt timestamp that is 1 hour and 2 minutes in the past",
+        "When formatElapsed(startedAt) is called",
+        "Then it returns '1h 2m'",
+        "Given a startedAt timestamp that is 45 seconds in the past",
+        "When formatElapsed(startedAt) is called",
+        "Then it returns '45s'",
+        "Given a startedAt timestamp that is in the future or invalid",
+        "When formatElapsed(startedAt) is called",
+        "Then it returns '0s' without throwing"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F010",
+      "category": "core",
+      "description": "Implement deriveSpecName() that extracts a short spec name from a full specPath",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given specPath is '/home/user/projects/mini-jwt/app_spec.md'",
+        "When deriveSpecName(specPath) is called",
+        "Then it returns 'mini-jwt' (the parent directory name)",
+        "Given specPath is 'app_spec.md' (no directory part)",
+        "When deriveSpecName(specPath) is called",
+        "Then it returns 'app_spec' (basename without extension)",
+        "Given specPath is an empty string",
+        "When deriveSpecName(specPath) is called",
+        "Then it returns 'unknown' without throwing"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F011",
+      "category": "command",
+      "description": "Implement statusCommand() output for the no-session-active path",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given ~/.harness/current.pid does not exist",
+        "When statusCommand() is called",
+        "Then stdout contains 'No active harness session'",
+        "And stdout contains 'harness run <spec.md>' as guidance",
+        "And the process exits with code 0"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F012",
+      "category": "command",
+      "description": "Implement statusCommand() output for the active session path with all display fields",
+      "priority": 1,
+      "complexity": "moderate",
+      "steps": [
+        "Given ~/.harness/current.pid contains a live PID and current-session.json has valid metadata",
+        "When statusCommand() is called",
+        "Then stdout contains 'Harness' and 'Active Session'",
+        "And stdout contains the sessionId value",
+        "And stdout contains the spec name derived from specPath",
+        "And stdout contains 'RUNNING'",
+        "And stdout contains the formatted elapsed time",
+        "And stdout contains the PID value"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F013",
+      "category": "command",
+      "description": "Implement statusCommand() stale session detection: cleans up files and prints no-session message",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given ~/.harness/current.pid exists but the PID process is dead",
+        "When statusCommand() is called",
+        "Then ~/.harness/current.pid is deleted",
+        "And ~/.harness/current-session.json is deleted (if it exists)",
+        "And stdout contains 'No active harness session'",
+        "And the process exits with code 0"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F014",
+      "category": "command",
+      "description": "Implement statusCommand() graceful fallback when session JSON is missing despite live PID",
+      "priority": 2,
+      "complexity": "simple",
+      "steps": [
+        "Given ~/.harness/current.pid contains a live PID but current-session.json does not exist",
+        "When statusCommand() is called",
+        "Then stdout contains 'RUNNING' and the PID",
+        "And missing fields (sessionId, spec, elapsed) are shown as 'unknown' or omitted",
+        "And the process does not crash or exit with a non-zero code"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F015",
+      "category": "routing",
+      "description": "Add 'status' command to help text in src/index.tsx",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given src/index.tsx is updated",
+        "When harness --help is run",
+        "Then the output contains a 'status' entry under Commands",
+        "And the description mentions showing whether a harness process is running"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F016",
+      "category": "routing",
+      "description": "Add 'status' case to routeCommand() switch in src/index.tsx and wire up import",
+      "priority": 1,
+      "complexity": "simple",
+      "steps": [
+        "Given src/index.tsx has a routeCommand() switch statement",
+        "When routeCommand() is called with cli.input = ['status']",
+        "Then statusCommand() is called",
+        "When routeCommand() is called with cli.input = ['unknownCmd']",
+        "Then statusCommand() is NOT called and help is shown",
+        "Given statusCommand is imported from src/commands/status.tsx",
+        "When the module is loaded",
+        "Then no import errors occur"
+      ],
+      "passes": false
+    }
+  ]
+}
