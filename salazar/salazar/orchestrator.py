@@ -58,12 +58,16 @@ def _git_commit_feature(feature_id: str, description: str, work_dir: Path | None
         return False
 
 
-async def push_git_commits(session_id: str) -> None:
-    """Read recent git commits from output dir and push to dashboard."""
+async def push_git_commits(session_id: str, work_dir: Path | None = None) -> None:
+    """Read recent feature commits from work dir and push to dashboard.
+
+    Only pushes commits starting with 'feat(' — filters out manual/scaffold commits.
+    """
+    target = str(work_dir or OUTPUT_DIR)
     try:
         result = subprocess.run(
-            ["git", "log", "--oneline", "--format=%H|%s|%aI", "-10"],
-            cwd=str(OUTPUT_DIR),
+            ["git", "log", "--oneline", "--format=%H|%s|%aI", "--grep=^feat(", "-E", "-20"],
+            cwd=target,
             capture_output=True,
             text=True,
             timeout=5,
@@ -82,7 +86,7 @@ async def push_git_commits(session_id: str) -> None:
             # Count files changed in this commit
             diff_result = subprocess.run(
                 ["git", "diff", "--name-only", f"{sha}~1", sha],
-                cwd=str(OUTPUT_DIR),
+                cwd=target,
                 capture_output=True,
                 text=True,
                 timeout=5,
@@ -403,7 +407,7 @@ async def _run_feature_loop(
                     f"{feature_id} passed (validators, {complexity})",
                     feature_elapsed_ms,
                 )
-                await push_git_commits(session.session_id)
+                await push_git_commits(session.session_id, work_dir)
                 break
 
             # Run evaluator for moderate/complex features
@@ -436,7 +440,7 @@ async def _run_feature_loop(
                     f"{feature_id} passed ({eval_result['score']}/10)",
                     feature_elapsed_ms,
                 )
-                await push_git_commits(session.session_id)
+                await push_git_commits(session.session_id, work_dir)
                 break
             else:
                 logger.warning(
