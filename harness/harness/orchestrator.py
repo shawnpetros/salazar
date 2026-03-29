@@ -24,6 +24,7 @@ from harness.validators import (
     ValidatorConfig, BaselineResult,
 )
 from harness import dashboard
+from harness.storage import get_db
 
 logger = logging.getLogger("harness.orchestrator")
 
@@ -136,16 +137,29 @@ async def run_orchestrator(
 
     await dashboard.push_session_start(session.session_id)
 
-    # Push spec card — extract name/description from the spec file
+    # Extract spec name/description
+    spec_name = app_spec_path.stem
+    spec_desc = ""
     try:
         spec_text = app_spec_path.read_text()
-        # Extract first heading as name, first paragraph as description
         spec_lines = [l.strip() for l in spec_text.split("\n") if l.strip()]
         spec_name = spec_lines[0].lstrip("# ") if spec_lines else app_spec_path.stem
         spec_desc = next((l for l in spec_lines[1:] if not l.startswith("#") and not l.startswith("---")), "")
         await dashboard.push_spec(session.session_id, spec_name, spec_desc[:200])
     except Exception as e:
         logger.warning(f"[orchestrator] Could not push spec card: {e}")
+
+    # Write to SQLite
+    db = get_db()
+    from harness.client import get_model_for_role
+    db.create_session(
+        session_id=session.session_id,
+        spec_name=spec_name,
+        spec_description=spec_desc[:500],
+        mode="brownfield" if brownfield else "greenfield",
+        model_generator=get_model_for_role("generator"),
+        model_evaluator=get_model_for_role("evaluator"),
+    )
 
     # In brownfield mode, work in the spec file's directory (the existing codebase)
     # In greenfield mode, work in OUTPUT_DIR (fresh directory)
@@ -237,6 +251,11 @@ async def run_orchestrator(
                 await dashboard.push_timeline_event(session.session_id, f"Planner: {progress.total} features", planner_ms)
                 logger.info(f"[orchestrator] Planner created {progress.total} features")
 
+                # Write features to SQLite
+                db = get_db()
+                db.bulk_insert_features(session.session_id, progress.items)
+                db.add_timeline_event(session.session_id, f"Planner: {progress.total} features", planner_ms)
+
         # Phase 2: Build loop
         await _run_feature_loop(session, validator_config, baseline, work_dir=work_dir)
 
@@ -278,12 +297,14 @@ async def _run_feature_loop(
         if progress.is_complete:
             logger.info(f"[orchestrator] All {progress.total} features complete!")
             await dashboard.push_session_complete(session.session_id)
+            get_db().update_session_state(session.session_id, "complete", "done")
             return
 
         feature = progress.next_incomplete()
         if feature is None:
             logger.info("[orchestrator] No more incomplete features — done")
             await dashboard.push_session_complete(session.session_id)
+            get_db().update_session_state(session.session_id, "complete", "done")
             return
 
         session.iteration += 1
@@ -373,6 +394,10 @@ async def _run_feature_loop(
                 logger.info(f"[orchestrator] Feature {feature_id} PASSED (validators only, {complexity})")
                 feature_complete = True
                 _git_commit_feature(feature_id, feature_name, work_dir)
+                get_db().upsert_feature(
+                    session.session_id, feature_id, feature_name, complexity,
+                    passes=True, duration_ms=feature_elapsed_ms,
+                )
                 await dashboard.push_timeline_event(
                     session.session_id,
                     f"{feature_id} passed (validators, {complexity})",
@@ -400,6 +425,12 @@ async def _run_feature_loop(
                 logger.info(f"[orchestrator] Feature {feature_id} PASSED (score: {eval_result['score']})")
                 feature_complete = True
                 _git_commit_feature(feature_id, feature_name, work_dir)
+                get_db().upsert_feature(
+                    session.session_id, feature_id, feature_name, complexity,
+                    passes=True, duration_ms=feature_elapsed_ms,
+                    evaluator_score=eval_result["score"],
+                    evaluator_feedback=eval_result.get("feedback", ""),
+                )
                 await dashboard.push_timeline_event(
                     session.session_id,
                     f"{feature_id} passed ({eval_result['score']}/10)",
@@ -430,6 +461,15 @@ async def _run_feature_loop(
             output_tokens=0,
             estimated_cost=session.total_cost,
             by_agent=session.cost_by_agent,
+        )
+
+        # SQLite cost update
+        get_db().update_session_cost(
+            session.session_id,
+            session.total_cost,
+            session.cost_by_agent["planner"],
+            session.cost_by_agent["generator"],
+            session.cost_by_agent["evaluator"],
         )
 
         if not feature_complete:
