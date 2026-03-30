@@ -1,39 +1,27 @@
 ## Status
 
-Salazar (renamed from "long-running harness") is functional for greenfield builds. Brownfield mode exists but has bugs that need fixing before use. Dashboard needs a v2 rethink.
+Salazar works for TypeScript libraries. Does NOT work for Next.js/framework apps — Claude Code subprocess hangs intermittently on complex projects. Dashboard v2 build failed after multiple attempts.
 
 ## In-Flight
 
-- Left-pad built successfully (15/15, 76 tests, 43 min, $5.47) — in examples/left-pad
-- Brownfield ouroboros test failed — planner went rogue, tests broke from rename, feature_list path issues
-- Dashboard shows data but has gaps (no features card during hardening, scroll issues, stale footer text)
+- Dashboard v2 spec is written but needs to be built interactively, not by the harness
+- Brownfield mode has bugs (planner goes rogue, test count parser fixed, rollback added)
+- Process cleanup bugs fixed (orphaned vitest, process groups)
 
 ## Key Details
 
-- Repo: github.com/shawnpetros/salazar (renamed from long-running-harness)
-- CLI binary: `salazar` (package name: salazar, was harness-cli)
-- Dashboard: agent-id-shawnpetros-projects.vercel.app (still on old Vercel project name)
-- Proven greenfield builds: mini-jwt (38/38), TUI (63/63), left-pad (15/15)
-- Brownfield NOT ready — needs planner constraint, test count parser fix, rollback validation
-- Banner image generated for branding
+- Repo: github.com/shawnpetros/salazar
+- Package renamed: harness/ → salazar/, all imports updated
+- SQLite storage at ~/.salazar/salazar.db (schema written, wired into orchestrator)
+- Proven greenfield: mini-jwt (38/38), TUI (63/63), left-pad (15/15)
+- FAILED greenfield: dashboard v2 (Next.js) — hung repeatedly on features
+- Dashboard v1 live at harness-dash.shawnpetros.com (works but needs v2)
+- .claudeignore needed for any project with node_modules
 
-## Next Session: Two Priorities
+## Next Steps
 
-### Priority 1: SQLite Storage Layer (interactive)
-Replace dashboard.py webhook pushes with direct SQLite writes to ~/.salazar/salazar.db.
-Schema: sessions, features, timeline, costs tables.
-This is the foundation for dashboard v2 and the `salazar dashboard` local command.
-DO INTERACTIVELY — it touches the core engine.
-
-### Priority 2: Dashboard v2 (can be specced for Salazar)
-New routing: / (active sessions), /session/:id (detail), /history, /history/:id
-Local mode: `salazar dashboard` starts web server, reads SQLite
-Remote mode: optional daemon syncs SQLite → Redis for Vercel deployment
-Better UI: loading states with personality, phase pipeline viz, multi-session support
-Fix commit display (only commit on feature PASS, not retries)
-
-### Brownfield Fixes (before next brownfield attempt)
-- Planner prompt: "ONLY plan features from the spec, not from codebase exploration"
-- Test count parser: match "Tests N passed" not "Test Files N passed"
-- Validate rollback actually works (git checkout . on failure)
-- Session-scoped feature lists need more testing
+1. Build dashboard v2 INTERACTIVELY (not with harness) — it's a framework app
+2. Fix the subprocess hang issue — may need to switch from claude-agent-sdk to direct CLI spawning
+3. Investigate why the SDK subprocess hangs intermittently
+4. Brownfield mode fixes before next brownfield attempt
+5. Astrolayb product roadmap review with Ivan
