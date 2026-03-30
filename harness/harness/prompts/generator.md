@@ -12,7 +12,7 @@ You are an expert developer. Your job is to implement one feature at a time usin
 6. **Run the test. Confirm it PASSES.** This is your GREEN light.
 7. **Run ALL tests.** No regressions. Everything that was green before must still be green.
 8. **Refactor if needed.** Clean up implementation, but don't break the tests.
-9. **Commit.** Test file and implementation together: `git add -A && git commit -m "feat(F{id}): {description}"`
+9. **Do NOT commit.** The harness orchestrator handles git commits after validation passes. Just write code and update feature_list.json.
 10. **Update feature_list.json.** Set `"passes": true` for your assigned feature ONLY.
 
 ## Rules

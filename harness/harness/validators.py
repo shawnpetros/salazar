@@ -133,14 +133,25 @@ def detect_validators(cwd: Path) -> ValidatorConfig:
 
 
 async def _run_cmd(name: str, cmd_str: str, cwd: Path) -> ValidationResult:
-    """Run a shell command string and capture output."""
+    """Run a shell command string and capture output.
+
+    Uses process groups so we can kill the entire tree (npm → vitest → workers)
+    when the command times out or the harness moves on.
+    """
+    import os
+    import signal
+
     logger.info(f"[validators] Running {name}: {cmd_str}")
+    proc = None
     try:
+        # start_new_session=True creates a new process group so we can
+        # kill the entire tree (npm → node → vitest → workers)
         proc = await asyncio.create_subprocess_shell(
             cmd_str,
             cwd=str(cwd),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
+            start_new_session=True,
         )
         stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=120)
         output = stdout.decode("utf-8", errors="replace")
@@ -148,11 +159,37 @@ async def _run_cmd(name: str, cmd_str: str, cwd: Path) -> ValidationResult:
         logger.info(f"[validators] {name}: {'PASS' if passed else 'FAIL'} (exit {proc.returncode})")
         return ValidationResult(name=name, passed=passed, output=output)
     except asyncio.TimeoutError:
-        logger.warning(f"[validators] {name}: TIMEOUT")
+        logger.warning(f"[validators] {name}: TIMEOUT — killing process group")
+        _kill_process_group(proc)
         return ValidationResult(name=name, passed=False, output="Timed out after 120s")
     except FileNotFoundError:
         logger.warning(f"[validators] {name}: command not found")
         return ValidationResult(name=name, passed=False, output=f"Command not found: {cmd_str}")
+    except Exception as e:
+        logger.warning(f"[validators] {name}: unexpected error: {e}")
+        _kill_process_group(proc)
+        return ValidationResult(name=name, passed=False, output=str(e))
+
+
+def _kill_process_group(proc: asyncio.subprocess.Process | None) -> None:
+    """Kill a process and its entire process group."""
+    import os
+    import signal
+
+    if proc is None or proc.returncode is not None:
+        return  # Already exited
+
+    try:
+        # Kill the entire process group (npm + vitest + workers)
+        pgid = os.getpgid(proc.pid)
+        os.killpg(pgid, signal.SIGKILL)
+        logger.info(f"[validators] Killed process group {pgid} (pid {proc.pid})")
+    except (ProcessLookupError, OSError):
+        # Process already dead
+        try:
+            proc.kill()
+        except (ProcessLookupError, OSError):
+            pass
 
 
 async def run_all_validators(
@@ -288,16 +325,33 @@ async def check_regression(
 
 
 def _parse_test_count(output: str) -> int:
-    """Try to extract test count from test runner output."""
+    """Try to extract test count from test runner output.
+
+    Vitest output looks like:
+      Test Files  61 passed (61)
+           Tests  1141 passed (1141)
+
+    We want the Tests line, not Test Files.
+    """
     import re
-    # Vitest/Jest: "Tests  76 passed (76)"
-    match = re.search(r"Tests?\s+(\d+)\s+passed", output)
+
+    # Vitest/Jest: line starting with "Tests" (not "Test Files")
+    # Match "Tests  1141 passed (1141)" — all tests passing
+    match = re.search(r"^\s*Tests\s+(\d+)\s+passed", output, re.MULTILINE)
     if match:
         return int(match.group(1))
-    # Pytest: "42 passed"
+
+    # Vitest with failures: "Tests  3 failed | 1138 passed (1141)"
+    # Capture the PASSING count (1138), not the total (1141)
+    match = re.search(r"^\s*Tests\s+\d+\s+\w+\s*\|\s*(\d+)\s+passed", output, re.MULTILINE)
+    if match:
+        return int(match.group(1))
+
+    # Pytest: "42 passed" at the end of output
     match = re.search(r"(\d+)\s+passed", output)
     if match:
         return int(match.group(1))
+
     return 0
 
 

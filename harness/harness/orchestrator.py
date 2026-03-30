@@ -33,6 +33,30 @@ MAX_EVALUATOR_RETRIES = 2
 DELAY_BETWEEN_SESSIONS = 3  # seconds
 
 
+def _git_commit_feature(feature_id: str, description: str, work_dir: Path | None = None) -> bool:
+    """Commit all changes for a completed feature. Returns True if committed."""
+    target = str(work_dir or OUTPUT_DIR)
+    try:
+        # Stage all changes
+        subprocess.run(["git", "add", "-A"], cwd=target, capture_output=True, timeout=10)
+        # Commit with feature ID
+        msg = f"feat({feature_id}): {description}"
+        result = subprocess.run(
+            ["git", "commit", "-m", msg],
+            cwd=target, capture_output=True, text=True, timeout=10,
+        )
+        if result.returncode == 0:
+            logger.info(f"[orchestrator] Committed: {msg}")
+            return True
+        else:
+            # Nothing to commit (no changes)
+            logger.debug(f"[orchestrator] Nothing to commit for {feature_id}")
+            return False
+    except Exception as e:
+        logger.warning(f"[orchestrator] Git commit failed: {e}")
+        return False
+
+
 async def push_git_commits(session_id: str) -> None:
     """Read recent git commits from output dir and push to dashboard."""
     try:
@@ -348,6 +372,7 @@ async def _run_feature_loop(
                 feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
                 logger.info(f"[orchestrator] Feature {feature_id} PASSED (validators only, {complexity})")
                 feature_complete = True
+                _git_commit_feature(feature_id, feature_name, work_dir)
                 await dashboard.push_timeline_event(
                     session.session_id,
                     f"{feature_id} passed (validators, {complexity})",
@@ -374,6 +399,7 @@ async def _run_feature_loop(
                 feature_elapsed_ms = int((time.time() - feature_start_time) * 1000)
                 logger.info(f"[orchestrator] Feature {feature_id} PASSED (score: {eval_result['score']})")
                 feature_complete = True
+                _git_commit_feature(feature_id, feature_name, work_dir)
                 await dashboard.push_timeline_event(
                     session.session_id,
                     f"{feature_id} passed ({eval_result['score']}/10)",
