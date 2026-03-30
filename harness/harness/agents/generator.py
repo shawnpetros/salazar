@@ -63,16 +63,28 @@ async def run_generator(feature: dict, evaluator_feedback: str | None = None) ->
         system_prompt=system_prompt,
         role="generator",
         max_budget_usd=50.0,
+        max_turns=50,
     )
 
     cost_usd = 0.0
     error = None
 
-    try:
+    # 5 minute timeout per session — catch hangs early
+    import asyncio
+    SESSION_TIMEOUT = 300
+
+    async def _run_session():
+        nonlocal cost_usd
         async for message in query(prompt=prompt, options=options):
             if isinstance(message, ResultMessage):
                 cost_usd = message.total_cost_usd or 0.0
                 logger.info(f"[generator] Feature {feature_id} session complete: cost=${cost_usd:.4f}, turns={message.num_turns}")
+
+    try:
+        await asyncio.wait_for(_run_session(), timeout=SESSION_TIMEOUT)
+    except asyncio.TimeoutError:
+        error = f"Generator timed out after {SESSION_TIMEOUT}s"
+        logger.error(f"[generator] Feature {feature_id}: {error}")
     except Exception as e:
         error = str(e)
         logger.error(f"[generator] Feature {feature_id} failed: {error}")
