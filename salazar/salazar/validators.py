@@ -10,9 +10,9 @@ import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from harness.client import OUTPUT_DIR
+from salazar.client import OUTPUT_DIR
 
-logger = logging.getLogger("harness.validators")
+logger = logging.getLogger("salazar.validators")
 
 
 @dataclass

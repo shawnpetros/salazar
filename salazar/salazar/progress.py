@@ -6,12 +6,12 @@ from dataclasses import dataclass
 
 import os
 
-from harness.client import OUTPUT_DIR
+from salazar.client import OUTPUT_DIR
 
 FEATURE_LIST_PATH = OUTPUT_DIR / "feature_list.json"
 
 # Session-scoped feature list directory
-HARNESS_DIR_NAME = ".harness"
+SALAZAR_DIR_NAME = ".salazar"
 
 
 def feature_list_path(work_dir: Path | None = None, session_id: str | None = None) -> Path:
@@ -25,9 +25,9 @@ def feature_list_path(work_dir: Path | None = None, session_id: str | None = Non
     sid = session_id or os.environ.get("HARNESS_SESSION_ID")
 
     if sid:
-        harness_dir = base / HARNESS_DIR_NAME / sid
-        harness_dir.mkdir(parents=True, exist_ok=True)
-        return harness_dir / "feature_list.json"
+        salazar_dir = base / SALAZAR_DIR_NAME / sid
+        salazar_dir.mkdir(parents=True, exist_ok=True)
+        return salazar_dir / "feature_list.json"
 
     return base / "feature_list.json"
 
@@ -35,11 +35,11 @@ def feature_list_path(work_dir: Path | None = None, session_id: str | None = Non
 def list_previous_runs(work_dir: Path | None = None) -> list[str]:
     """List all previous harness session IDs in a work directory."""
     base = work_dir or OUTPUT_DIR
-    harness_dir = base / HARNESS_DIR_NAME
-    if not harness_dir.exists():
+    salazar_dir = base / SALAZAR_DIR_NAME
+    if not salazar_dir.exists():
         return []
     return sorted(
-        [d.name for d in harness_dir.iterdir() if d.is_dir() and (d / "feature_list.json").exists()],
+        [d.name for d in salazar_dir.iterdir() if d.is_dir() and (d / "feature_list.json").exists()],
         reverse=True,
     )
 

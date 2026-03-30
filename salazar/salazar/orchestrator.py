@@ -13,20 +13,20 @@ import time
 import uuid
 from pathlib import Path
 
-from harness.agents.planner import run_planner
-from harness.agents.generator import run_generator
-from harness.agents.evaluator import run_evaluator
-from harness.client import OUTPUT_DIR
-from harness.progress import read_progress, get_feature_summary, FEATURE_LIST_PATH, feature_list_path
-from harness.validators import (
+from salazar.agents.planner import run_planner
+from salazar.agents.generator import run_generator
+from salazar.agents.evaluator import run_evaluator
+from salazar.client import OUTPUT_DIR
+from salazar.progress import read_progress, get_feature_summary, FEATURE_LIST_PATH, feature_list_path
+from salazar.validators import (
     run_all_validators, run_tests_only, all_passed, format_failures,
     detect_validators, capture_baseline, check_regression,
     ValidatorConfig, BaselineResult,
 )
-from harness import dashboard
-from harness.storage import get_db
+from salazar import dashboard
+from salazar.storage import get_db
 
-logger = logging.getLogger("harness.orchestrator")
+logger = logging.getLogger("salazar.orchestrator")
 
 # Retry limits
 MAX_VALIDATOR_RETRIES = 3
@@ -151,7 +151,7 @@ async def run_orchestrator(
 
     # Write to SQLite
     db = get_db()
-    from harness.client import get_model_for_role
+    from salazar.client import get_model_for_role
     db.create_session(
         session_id=session.session_id,
         spec_name=spec_name,
@@ -177,7 +177,7 @@ async def run_orchestrator(
     try:
         # Phase 0 (brownfield only): Explorer + Hardening
         if brownfield:
-            from harness.agents.explorer import run_explorer, get_hardening_features
+            from salazar.agents.explorer import run_explorer, get_hardening_features
 
             logger.info("[orchestrator] Brownfield mode — running explorer")
             await dashboard.push_phase_change(session.session_id, "plan", "Exploring codebase")

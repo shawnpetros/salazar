@@ -6,10 +6,10 @@ from pathlib import Path
 
 from claude_agent_sdk import query, ResultMessage
 
-from harness.client import make_options, OUTPUT_DIR
-from harness.progress import read_progress, format_progress_header
+from salazar.client import make_options, OUTPUT_DIR
+from salazar.progress import read_progress, format_progress_header
 
-logger = logging.getLogger("harness.generator")
+logger = logging.getLogger("salazar.generator")
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "generator.md"
 

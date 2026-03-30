@@ -6,9 +6,9 @@ from pathlib import Path
 
 from claude_agent_sdk import query, ResultMessage, AssistantMessage, TextBlock
 
-from harness.client import make_options, OUTPUT_DIR
+from salazar.client import make_options, OUTPUT_DIR
 
-logger = logging.getLogger("harness.evaluator")
+logger = logging.getLogger("salazar.evaluator")
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "evaluator.md"
 

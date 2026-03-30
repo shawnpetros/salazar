@@ -6,8 +6,8 @@ import logging
 import sys
 from pathlib import Path
 
-from harness.multi_orchestrator import run_multi_orchestrator
-from harness.orchestrator import run_orchestrator
+from salazar.multi_orchestrator import run_multi_orchestrator
+from salazar.orchestrator import run_orchestrator
 
 
 def setup_logging(verbose: bool = False, log_file: str | None = None) -> None:
@@ -115,7 +115,7 @@ def main() -> None:
 
     setup_logging(args.verbose, log_file=log_file)
 
-    logger = logging.getLogger("harness.main")
+    logger = logging.getLogger("salazar.main")
 
     # Validate spec file exists
     if not args.spec.exists():
@@ -136,7 +136,7 @@ def main() -> None:
     if args.model_evaluator:
         os.environ["HARNESS_MODEL_EVALUATOR"] = args.model_evaluator
 
-    from harness.client import get_model_for_role
+    from salazar.client import get_model_for_role
     mode = "brownfield" if args.brownfield else ("single" if args.single else "multi (architect-driven)")
     logger.info(f"Starting harness with spec: {args.spec}")
     logger.info(f"Mode: {mode}")

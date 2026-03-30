@@ -9,7 +9,7 @@ from claude_agent_sdk import (
     SandboxSettings,
 )
 
-from harness.security import bash_security_hook
+from salazar.security import bash_security_hook
 
 # Resolve paths relative to the project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
