@@ -8,7 +8,7 @@ from claude_agent_sdk import query, ResultMessage
 
 from salazar.client import make_options
 
-logger = logging.getLogger("harness.explorer")
+logger = logging.getLogger("salazar.explorer")
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "explorer.md"
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 from salazar.client import OUTPUT_DIR
 
-logger = logging.getLogger("harness.validators")
+logger = logging.getLogger("salazar.validators")
 
 
 @dataclass

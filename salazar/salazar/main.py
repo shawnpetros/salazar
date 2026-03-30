@@ -115,7 +115,7 @@ def main() -> None:
 
     setup_logging(args.verbose, log_file=log_file)
 
-    logger = logging.getLogger("harness.main")
+    logger = logging.getLogger("salazar.main")
 
     # Validate spec file exists
     if not args.spec.exists():

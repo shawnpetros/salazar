@@ -6,7 +6,7 @@ from typing import Any
 
 import httpx
 
-logger = logging.getLogger("harness.dashboard")
+logger = logging.getLogger("salazar.dashboard")
 
 _client: httpx.AsyncClient | None = None
 

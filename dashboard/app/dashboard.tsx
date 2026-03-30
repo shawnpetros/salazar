@@ -92,7 +92,7 @@ export function Dashboard() {
             </div>
             {hasSession && (
               <code className="text-[11px] font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50">
-                {state.sessionId?.slice(0, 10)}
+                {String(state.sessionId ?? "").slice(0, 10)}
               </code>
             )}
           </div>

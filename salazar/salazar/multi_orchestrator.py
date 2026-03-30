@@ -16,7 +16,7 @@ from salazar.orchestrator import run_orchestrator
 from salazar.client import OUTPUT_DIR
 from salazar import dashboard
 
-logger = logging.getLogger("harness.multi")
+logger = logging.getLogger("salazar.multi")
 
 
 async def run_multi_orchestrator(app_spec_path: Path) -> None:

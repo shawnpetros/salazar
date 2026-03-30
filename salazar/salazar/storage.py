@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger("harness.storage")
+logger = logging.getLogger("salazar.storage")
 
 DEFAULT_DB_PATH = Path.home() / ".salazar" / "salazar.db"
 

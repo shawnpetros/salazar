@@ -26,7 +26,7 @@ from salazar.validators import (
 from salazar import dashboard
 from salazar.storage import get_db
 
-logger = logging.getLogger("harness.orchestrator")
+logger = logging.getLogger("salazar.orchestrator")
 
 # Retry limits
 MAX_VALIDATOR_RETRIES = 3
