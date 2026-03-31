@@ -16,14 +16,14 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    CLI (Ink TUI / Node.js)               │
-│  Onboarding wizard, live progress, session history       │
-│  Built BY Salazar — 63 features, 1,141 tests        │
+│                    CLI (Ink TUI / Node.js)              │
+│  Onboarding wizard, live progress, session history      │
+│  Built BY Salazar — 63 features, 1,141 tests            │
 └──────────────────────┬──────────────────────────────────┘
                        │ spawns
 ┌──────────────────────▼──────────────────────────────────┐
-│                   HARNESS ENGINE (Python)                │
-│                                                          │
+│                   HARNESS ENGINE (Python)               │
+│                                                         │
 │  ┌──────────┐    ┌───────────┐    ┌───────────────────┐ │
 │  │ Planner  │───▶│ Generator │───▶│ Hard Validators   │ │
 │  │          │    │           │    │ (tsc, eslint,     │ │
@@ -45,15 +45,15 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 │                                    │  - Security   │    │
 │                                    │  - Usability  │    │
 │                                    └───────────────┘    │
-│                                                          │
+│                                                         │
 │  Pushes status via webhook ──────────────────────────▶  │
 └─────────────────────────────────────────────────────────┘
                                                     │
                                                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│              DASHBOARD (Next.js on Vercel)               │
-│  Real-time monitoring: status, features, timeline,       │
-│  evaluator scores, cost tracking, commit feed, history   │
+│              DASHBOARD (Next.js on Vercel)              │
+│  Real-time monitoring: status, features, timeline,      │
+│  evaluator scores, cost tracking, commit feed, history  │
 │  Harness → POST /api/ingest → Redis → SSE → Browser     │
 └─────────────────────────────────────────────────────────┘
 ```
