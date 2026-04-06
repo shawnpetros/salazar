@@ -2,16 +2,14 @@
 
 import json
 import logging
-from pathlib import Path
 
 from claude_agent_sdk import query, ResultMessage
 
 from salazar.client import make_options, OUTPUT_DIR
 from salazar.progress import read_progress, format_progress_header
+from salazar.resources import read_prompt
 
 logger = logging.getLogger("salazar.generator")
-
-PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "generator.md"
 
 
 async def run_generator(feature: dict, evaluator_feedback: str | None = None) -> dict:
@@ -30,7 +28,7 @@ async def run_generator(feature: dict, evaluator_feedback: str | None = None) ->
 
     logger.info(f"[generator] Starting feature {feature_id}: {description}")
 
-    system_prompt = PROMPT_PATH.read_text()
+    system_prompt = read_prompt("generator.md")
 
     # Build the prompt
     progress = read_progress()

@@ -7,10 +7,9 @@ from pathlib import Path
 from claude_agent_sdk import query, ResultMessage
 
 from salazar.client import make_options
+from salazar.resources import read_prompt
 
 logger = logging.getLogger("salazar.explorer")
-
-PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "explorer.md"
 
 
 async def run_explorer(cwd: Path, spec_path: Path | None = None) -> dict | None:
@@ -25,7 +24,7 @@ async def run_explorer(cwd: Path, spec_path: Path | None = None) -> dict | None:
     """
     logger.info(f"[explorer] Scanning codebase at {cwd}")
 
-    system_prompt = PROMPT_PATH.read_text()
+    system_prompt = read_prompt("explorer.md")
 
     prompt_parts = [
         f"Explore the codebase in the current directory and produce "

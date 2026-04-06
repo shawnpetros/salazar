@@ -6,8 +6,9 @@ import logging
 import sys
 from pathlib import Path
 
-from salazar.multi_orchestrator import run_multi_orchestrator
-from salazar.orchestrator import run_orchestrator
+from salazar import __version__
+from salazar.config import load_config
+from salazar.paths import LOG_DIR, ensure_runtime_dirs
 
 
 def setup_logging(verbose: bool = False, log_file: str | None = None) -> None:
@@ -30,9 +31,25 @@ def parse_args() -> argparse.Namespace:
         description="Agent-ID Harness — Autonomous coding orchestrator",
     )
     parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+    parser.add_argument(
         "spec",
         type=Path,
+        nargs="?",
         help="Path to the app_spec.md file",
+    )
+    parser.add_argument(
+        "--tui",
+        action="store_true",
+        help="Open the built-in TUI launcher",
+    )
+    parser.add_argument(
+        "--config",
+        action="store_true",
+        help="Open the built-in TUI to edit saved CLI defaults",
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -59,20 +76,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--dashboard-url",
         type=str,
-        default="",
+        default=None,
         help="URL of the monitoring dashboard (e.g., https://agent-id.vercel.app)",
     )
     parser.add_argument(
         "--dashboard-secret",
         type=str,
-        default="",
+        default=None,
         help="Bearer token for dashboard ingest endpoint",
     )
     parser.add_argument(
         "--model",
         type=str,
-        default="claude-sonnet-4-6",
-        help="Default model for all agent roles (default: claude-sonnet-4-6)",
+        default=None,
+        help="Default model for all agent roles",
     )
     parser.add_argument(
         "--model-planner",
@@ -103,38 +120,74 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    ensure_runtime_dirs()
+
+    if args.config or args.tui or args.spec is None:
+        try:
+            from salazar.config_tui import run_config_tui, run_launcher_tui
+        except ModuleNotFoundError as exc:
+            print(
+                f"Salazar's TUI dependency '{exc.name}' is not installed. "
+                "Reinstall the package with its default dependencies and run `salazar --tui`.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        if args.config:
+            run_config_tui()
+        else:
+            run_launcher_tui()
+        return
+
+    config = load_config()
+    dashboard_url = args.dashboard_url or config.dashboard_url or ""
+    dashboard_secret = args.dashboard_secret or config.dashboard_secret or ""
+    model = args.model or config.model
+    model_planner = args.model_planner or config.model_planner
+    model_generator = args.model_generator or config.model_generator
+    model_evaluator = args.model_evaluator or config.model_evaluator
 
     # Default log file if not specified
     import os
     from datetime import datetime
     log_file = args.log_file
     if log_file is None:
-        log_dir = Path(__file__).resolve().parent.parent / "logs"
-        log_dir.mkdir(exist_ok=True)
-        log_file = str(log_dir / f"harness-{datetime.now().strftime('%Y%m%d-%H%M%S')}.log")
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        log_file = str(LOG_DIR / f"harness-{datetime.now().strftime('%Y%m%d-%H%M%S')}.log")
 
     setup_logging(args.verbose, log_file=log_file)
 
     logger = logging.getLogger("salazar.main")
 
     # Validate spec file exists
-    if not args.spec.exists():
+    if args.spec is None or not args.spec.exists():
         logger.error(f"Spec file not found: {args.spec}")
         sys.exit(1)
 
     # Set environment for dashboard integration
-    if args.dashboard_url:
-        os.environ["DASHBOARD_URL"] = args.dashboard_url
-    if args.dashboard_secret:
-        os.environ["DASHBOARD_SECRET"] = args.dashboard_secret
-    if args.model:
-        os.environ["HARNESS_MODEL"] = args.model
-    if args.model_planner:
-        os.environ["HARNESS_MODEL_PLANNER"] = args.model_planner
-    if args.model_generator:
-        os.environ["HARNESS_MODEL_GENERATOR"] = args.model_generator
-    if args.model_evaluator:
-        os.environ["HARNESS_MODEL_EVALUATOR"] = args.model_evaluator
+    if dashboard_url:
+        os.environ["DASHBOARD_URL"] = dashboard_url
+    if dashboard_secret:
+        os.environ["DASHBOARD_SECRET"] = dashboard_secret
+    if model:
+        os.environ["HARNESS_MODEL"] = model
+    if model_planner:
+        os.environ["HARNESS_MODEL_PLANNER"] = model_planner
+    if model_generator:
+        os.environ["HARNESS_MODEL_GENERATOR"] = model_generator
+    if model_evaluator:
+        os.environ["HARNESS_MODEL_EVALUATOR"] = model_evaluator
+
+    try:
+        from salazar.multi_orchestrator import run_multi_orchestrator
+        from salazar.orchestrator import run_orchestrator
+    except ModuleNotFoundError as exc:
+        print(
+            f"Salazar runtime dependency '{exc.name}' is not installed. "
+            "Reinstall the package with its default dependencies before running a spec.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     from salazar.client import get_model_for_role
     mode = "brownfield" if args.brownfield else ("single" if args.single else "multi (architect-driven)")
@@ -144,8 +197,8 @@ def main() -> None:
         logger.info(f"Hardening: {args.hardening}")
     logger.info(f"Models — planner: {get_model_for_role('planner')}, generator: {get_model_for_role('generator')}, evaluator: {get_model_for_role('evaluator')}")
     logger.info(f"Log file: {log_file}")
-    if args.dashboard_url:
-        logger.info(f"Dashboard: {args.dashboard_url}")
+    if dashboard_url:
+        logger.info(f"Dashboard: {dashboard_url}")
 
     if args.single or args.brownfield:
         asyncio.run(run_orchestrator(

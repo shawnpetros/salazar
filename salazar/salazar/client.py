@@ -9,11 +9,8 @@ from claude_agent_sdk import (
     SandboxSettings,
 )
 
+from salazar.paths import OUTPUT_DIR, ensure_runtime_dirs
 from salazar.security import bash_security_hook
-
-# Resolve paths relative to the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-OUTPUT_DIR = PROJECT_ROOT / "output"
 
 # Model tier defaults — override with env vars
 MODEL_TIERS = {
@@ -57,6 +54,7 @@ def make_options(
         mcp_servers: MCP server configs (e.g., Playwright for evaluator).
     """
     # In brownfield mode, HARNESS_WORK_DIR overrides OUTPUT_DIR
+    ensure_runtime_dirs()
     effective_cwd = Path(os.environ.get("HARNESS_WORK_DIR", str(OUTPUT_DIR)))
     effective_cwd.mkdir(parents=True, exist_ok=True)
 

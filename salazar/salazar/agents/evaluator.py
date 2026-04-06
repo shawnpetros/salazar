@@ -2,15 +2,13 @@
 
 import json
 import logging
-from pathlib import Path
 
 from claude_agent_sdk import query, ResultMessage, AssistantMessage, TextBlock
 
 from salazar.client import make_options, OUTPUT_DIR
+from salazar.resources import read_prompt
 
 logger = logging.getLogger("salazar.evaluator")
-
-PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "evaluator.md"
 
 # Minimum overall score to pass
 MIN_PASSING_SCORE = 7.0
@@ -80,7 +78,7 @@ async def run_evaluator(feature: dict) -> dict:
 
     logger.info(f"[evaluator] Evaluating feature {feature_id}: {description}")
 
-    system_prompt = PROMPT_PATH.read_text()
+    system_prompt = read_prompt("evaluator.md")
 
     steps_text = "\n".join(f"  - {s}" for s in steps) if steps else "  (no BDD steps defined)"
 

@@ -14,9 +14,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from salazar.paths import DB_PATH
+
 logger = logging.getLogger("salazar.storage")
 
-DEFAULT_DB_PATH = Path.home() / ".salazar" / "salazar.db"
+DEFAULT_DB_PATH = DB_PATH
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS sessions (

@@ -61,25 +61,28 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 ## Quick Start
 
 ```bash
-# Install the CLI
-cd cli && npm install && npm link
+# Install the Python CLI
+pip install -e ./salazar
+
+# Configure saved defaults in the built-in TUI
+salazar --config
 
 # Greenfield — build from a spec
-salazar run my-app-spec.md
+salazar my-app-spec.md
 
 # Brownfield — work on an existing codebase
-salazar run features.md --brownfield
+salazar features.md --brownfield
 
 # Brownfield with hardening control
-salazar run features.md --brownfield --hardening thorough  # add tests for blast radius
-salazar run features.md --brownfield --hardening minimal   # only fix broken validators
-salazar run features.md --brownfield --hardening skip      # trust existing tests
+salazar features.md --brownfield --hardening thorough  # add tests for blast radius
+salazar features.md --brownfield --hardening minimal   # only fix broken validators
+salazar features.md --brownfield --hardening skip      # trust existing tests
 
 # With model tiers
-salazar run spec.md --model claude-sonnet-4-6 --model-evaluator claude-opus-4-6
+salazar spec.md --model claude-sonnet-4-6 --model-evaluator claude-opus-4-6
 
 # With dashboard
-salazar run spec.md --dashboard-url https://your-dashboard.vercel.app
+salazar spec.md --dashboard-url https://your-dashboard.vercel.app
 ```
 
 ## How It Works
@@ -120,13 +123,13 @@ The generator uses **TDD** (test-driven development) in both modes:
 - Refactor if needed
 
 ```bash
-salazar run add-auth.md --brownfield --hardening auto
+salazar add-auth.md --brownfield --hardening auto
 ```
 
 ### Model Tiers
 
 ```bash
-salazar run spec.md \
+salazar spec.md \
   --model-generator claude-sonnet-4-6 \   # Fast, good at coding
   --model-evaluator claude-opus-4-6       # Deep, good at critique
 ```
@@ -204,11 +207,11 @@ Theme: Catppuccin Mocha (mauve/blue/pink accents).
 ## CLI Commands
 
 ```bash
-salazar                     # First run → onboarding wizard
-salazar run <spec.md>       # Build software from spec
-salazar config              # Configuration wizard
-salazar config set model    # Set default model
-salazar history             # Browse past runs
+salazar                     # Launch built-in TUI / onboarding
+salazar --tui               # Reopen the built-in TUI
+salazar --config            # Jump straight to saved defaults
+salazar <spec.md>           # Build software from spec
+salazar <spec.md> --brownfield
 salazar --version           # 0.1.0
 salazar --help              # Full help text
 ```

@@ -7,10 +7,9 @@ from pathlib import Path
 from claude_agent_sdk import query, ResultMessage
 
 from salazar.client import make_options, OUTPUT_DIR
+from salazar.resources import read_prompt
 
 logger = logging.getLogger("salazar.architect")
-
-PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "architect.md"
 
 
 async def run_architect(app_spec_path: Path) -> dict | None:
@@ -24,7 +23,7 @@ async def run_architect(app_spec_path: Path) -> dict | None:
     """
     logger.info("[architect] Starting architect agent")
 
-    system_prompt = PROMPT_PATH.read_text()
+    system_prompt = read_prompt("architect.md")
     app_spec = app_spec_path.read_text()
 
     # Copy app_spec into output directory
