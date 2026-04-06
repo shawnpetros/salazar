@@ -1,39 +1,24 @@
 ## Status
 
-Salazar (renamed from "long-running harness") is functional for greenfield builds. Brownfield mode exists but has bugs that need fixing before use. Dashboard needs a v2 rethink.
+Salazar is being ported from Python+Node polyglot to a single TypeScript package. Plan written, branch created, ready to execute.
 
 ## In-Flight
 
-- Left-pad built successfully (15/15, 76 tests, 43 min, $5.47) — in examples/left-pad
-- Brownfield ouroboros test failed — planner went rogue, tests broke from rename, feature_list path issues
-- Dashboard shows data but has gaps (no features card during hardening, scroll issues, stale footer text)
+- **TS Port (P0)**: 14 tasks, 0 complete. Plan at `docs/superpowers/plans/2026-04-06-ts-port.md`
+- Brownfield, multi-orchestrator, and dashboard webhooks intentionally deferred
+- Using `@anthropic-ai/claude-agent-sdk` (TS) to replace `claude-agent-sdk` (Python)
 
 ## Key Details
 
-- Repo: github.com/shawnpetros/salazar (renamed from long-running-harness)
-- CLI binary: `salazar` (package name: salazar, was harness-cli)
-- Dashboard: agent-id-shawnpetros-projects.vercel.app (still on old Vercel project name)
-- Proven greenfield builds: mini-jwt (38/38), TUI (63/63), left-pad (15/15)
-- Brownfield NOT ready — needs planner constraint, test count parser fix, rollback validation
-- Banner image generated for branding
+- Repo: github.com/shawnpetros/salazar
+- Branch: `feat/ts-port` (work branch, merge to main when done)
+- Agent SDK: `@anthropic-ai/claude-agent-sdk` — same `query()` API as Python
+- Architecture: Single npm package, engine emits typed events, TUI subscribes directly
+- Old Python (`salazar/`) and old CLI (`cli/`) stay until Task 13 cleanup
 
-## Next Session: Two Priorities
+## Next Steps
 
-### Priority 1: SQLite Storage Layer (interactive)
-Replace dashboard.py webhook pushes with direct SQLite writes to ~/.salazar/salazar.db.
-Schema: sessions, features, timeline, costs tables.
-This is the foundation for dashboard v2 and the `salazar dashboard` local command.
-DO INTERACTIVELY — it touches the core engine.
-
-### Priority 2: Dashboard v2 (can be specced for Salazar)
-New routing: / (active sessions), /session/:id (detail), /history, /history/:id
-Local mode: `salazar dashboard` starts web server, reads SQLite
-Remote mode: optional daemon syncs SQLite → Redis for Vercel deployment
-Better UI: loading states with personality, phase pipeline viz, multi-session support
-Fix commit display (only commit on feature PASS, not retries)
-
-### Brownfield Fixes (before next brownfield attempt)
-- Planner prompt: "ONLY plan features from the spec, not from codebase exploration"
-- Test count parser: match "Tests N passed" not "Test Files N passed"
-- Validate rollback actually works (git checkout . on failure)
-- Session-scoped feature lists need more testing
+1. Create `feat/ts-port` branch
+2. Execute Task 1 (scaffold) through Task 14 (smoke test)
+3. Tasks 3-6 and 7-9 are parallelizable
+4. Merge to main when smoke test passes
