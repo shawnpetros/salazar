@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="Salazar — The tool that builds itself" width="100%" />
+</p>
+
 # Salazar
 
 *The tool that builds itself.*
