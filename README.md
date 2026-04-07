@@ -40,13 +40,13 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    CLI / TUI (Ink)                       │
+│                    CLI / TUI (Ink)                      │
 │  Onboarding, live progress, session history             │
 │  Direct engine integration — no subprocess IPC          │
 └──────────────────────┬──────────────────────────────────┘
                        │ imports
 ┌──────────────────────▼──────────────────────────────────┐
-│                   ENGINE (TypeScript)                    │
+│                   ENGINE (TypeScript)                   │
 │                                                         │
 │  ┌──────────┐    ┌───────────┐    ┌───────────────────┐ │
 │  │ Planner  │───▶│ Generator │───▶│ Hard Validators   │ │
@@ -70,7 +70,7 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 │  └──────────┘                                           │
 │                                                         │
 │  EventEmitter ──▶ TUI subscribes directly               │
-│  SQLite ──▶ session history persisted locally            │
+│  SQLite ──▶ session history persisted locally           │
 └─────────────────────────────────────────────────────────┘
 ```
 
