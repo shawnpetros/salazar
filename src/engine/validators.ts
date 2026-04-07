@@ -24,7 +24,7 @@ import type { ValidationResult, ValidatorConfig } from "../lib/types.js";
 // ---------------------------------------------------------------------------
 
 export function detectValidators(cwd: string): ValidatorConfig {
-  let packageManager = "npm";
+  let packageManager: ValidatorConfig["packageManager"] = "npm";
   if (existsSync(join(cwd, "pnpm-lock.yaml"))) {
     packageManager = "pnpm";
   } else if (existsSync(join(cwd, "yarn.lock"))) {
