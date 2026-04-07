@@ -48,7 +48,7 @@ export function NewBuild({
   const resolvedDefault = defaultOutputDir || getOutputDir();
 
   const [step, setStep] = useState<Step>("output-dir");
-  const [outputDir, setOutputDir] = useState(resolvedDefault);
+  const [outputDir, setOutputDir] = useState("");
   const [specPath, setSpecPath] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -107,18 +107,16 @@ export function NewBuild({
         <Box flexDirection="column">
           <Text color="yellow">{"Step 1/3 -- Output directory:"}</Text>
           <Box marginTop={1}>
-            <Text dimColor>{`Default: ${resolvedDefault}`}</Text>
-          </Box>
-          <Box marginTop={1}>
             <Text>{"> "}</Text>
             <TextInput
               value={outputDir}
               onChange={setOutputDir}
               onSubmit={handleOutputDirSubmit}
+              placeholder={resolvedDefault}
             />
           </Box>
           <Box marginTop={1}>
-            <Text dimColor>{"Enter to accept, Esc to go back"}</Text>
+            <Text dimColor>{`Enter for default (${resolvedDefault}), Esc to go back`}</Text>
           </Box>
         </Box>
       )}
