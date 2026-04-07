@@ -133,6 +133,8 @@ export interface SalazarConfig {
   output: {
     defaultDir: string;
   };
+  /** Remembers the last output directory used for a build. */
+  lastOutputDir?: string;
 }
 
 export interface SessionRow {
