@@ -104,13 +104,8 @@ describe("F039 — ConfigWizard source structure", () => {
     expect(content).toContain("onSave");
   });
 
-  it.skip("config-wizard.tsx uses ink-text-input for URL and secret — skipped: dashboardUrl/dashboardSecret removed in Salazar port (simplified to model-only wizard)", () => {});
-
-  it.skip("config-wizard.tsx uses mask prop for the secret input — skipped: dashboardSecret field removed in Salazar port", () => {});
-
-  it.skip("config-wizard.tsx has dashboard URL prompt — skipped: dashboardUrl field removed in Salazar port", () => {});
-
-  it.skip("config-wizard.tsx has dashboard secret prompt — skipped: dashboardSecret field removed in Salazar port", () => {});
+  // NOTE: dashboardUrl, dashboardSecret, and mask were removed in the Salazar port.
+  // The wizard was simplified to model-only selection (2 steps, no text inputs).
 });
 
 describe("F039 — WizardConfig type", () => {
@@ -149,5 +144,6 @@ describe("F039 — WizardConfig type", () => {
     expect(received).toHaveProperty("evaluatorModel");
   });
 
-  it.skip("onSave receives all four config fields — skipped: dashboardUrl/dashboardSecret removed in Salazar port (wizard is now 2-step model selection only)", () => {});
+  // NOTE: The wizard was simplified to 2-step model selection only.
+  // dashboardUrl/dashboardSecret were removed in the Salazar port.
 });

@@ -431,9 +431,5 @@ describe("F003 — HarnessEvent discriminated union", () => {
 // ---------------------------------------------------------------------------
 // F005 — SessionRecord type tests
 // SessionRecord was removed from the new types.ts (replaced by SessionRow).
-// Skipping these tests.
+// These tests have been deleted since the type no longer exists.
 // ---------------------------------------------------------------------------
-
-describe.skip("F005 — SessionRecord type (eliminated — type was replaced by SessionRow in new types.ts)", () => {
-  it.skip("skipped — SessionRecord no longer exists in types.ts", () => {});
-});
