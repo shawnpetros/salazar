@@ -10,7 +10,7 @@
 
 import crypto from "node:crypto";
 import { execSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { basename } from "node:path";
 import { join } from "node:path";
 import { TypedEmitter } from "../lib/events.js";
@@ -63,6 +63,9 @@ export class Orchestrator extends TypedEmitter {
       sessionId: this.sessionId,
       spec: this.specPath,
     });
+
+    // Ensure output directory is a git repo for per-feature commits
+    this.ensureGitRepo();
 
     // Extract spec name and description from spec file
     const specStem = basename(this.specPath).replace(/\.[^.]+$/, "");
@@ -478,18 +481,33 @@ export class Orchestrator extends TypedEmitter {
   // Git helpers
   // ---------------------------------------------------------------------------
 
+  private ensureGitRepo(): void {
+    const gitDir = join(this.outputDir, ".git");
+    if (!existsSync(gitDir)) {
+      try {
+        mkdirSync(this.outputDir, { recursive: true });
+        execSync("git init", { cwd: this.outputDir, timeout: 10000, stdio: "pipe" });
+        execSync('git commit --allow-empty -m "init: salazar output directory"', {
+          cwd: this.outputDir, timeout: 10000, stdio: "pipe",
+        });
+        console.log(`[orchestrator] Initialized git repo in ${this.outputDir}`);
+      } catch (err) {
+        console.warn(`[orchestrator] Could not init git repo: ${err}`);
+      }
+    }
+  }
+
   private gitCommitFeature(
     featureId: string,
     description: string,
   ): boolean {
     try {
-      execSync("git add -A", { cwd: this.outputDir, timeout: 10000 });
+      execSync("git add -A", { cwd: this.outputDir, timeout: 10000, stdio: "pipe" });
       const msg = `feat(${featureId}): ${description}`;
-      execSync(`git commit -m "${msg}"`, {
-        cwd: this.outputDir,
-        timeout: 10000,
-        stdio: "pipe",
-      });
+      execSync(
+        `git -c user.name="Salazar" -c user.email="salazar@localhost" commit -m "${msg}"`,
+        { cwd: this.outputDir, timeout: 10000, stdio: "pipe" },
+      );
       console.log(`[orchestrator] Committed: ${msg}`);
       return true;
     } catch {
@@ -500,7 +518,7 @@ export class Orchestrator extends TypedEmitter {
 
   private gitRollback(): void {
     try {
-      execSync("git checkout .", { cwd: this.outputDir, timeout: 10000 });
+      execSync("git checkout .", { cwd: this.outputDir, timeout: 10000, stdio: "pipe" });
       console.log("[orchestrator] Rolled back uncommitted changes");
     } catch {
       console.warn("[orchestrator] Rollback failed");
