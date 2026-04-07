@@ -1,0 +1,14 @@
+src/
+demo/
+docs/
+examples/
+test-spec.md
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+*.test.ts
+*.test.tsx
+__tests__/
+.claude/
+.git/
+assets/
