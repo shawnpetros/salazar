@@ -16,6 +16,21 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 
 ---
 
+## Demo
+
+<p align="center">
+  <img src="demo/build-demo.gif" alt="Salazar building a counter library from a spec" width="100%" />
+</p>
+
+<details>
+<summary>TUI launcher flow</summary>
+<p align="center">
+  <img src="demo/tui-demo.gif" alt="Salazar TUI — where → what → run" width="100%" />
+</p>
+</details>
+
+---
+
 ## Architecture
 
 ```
