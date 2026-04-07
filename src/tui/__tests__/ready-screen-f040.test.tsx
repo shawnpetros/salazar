@@ -96,15 +96,10 @@ describe("F040 — ReadyScreen source structure", () => {
     expect(content).toContain("onDone");
   });
 
-  it.skip("welcome.tsx contains 'harness run --multi' quick-start example — skipped: command removed in Salazar port (no --multi flag)", () => {});
-
-  it.skip("welcome.tsx contains 'harness config' quick-start example — skipped: renamed to 'salazar config' in port", () => {});
-
-  it.skip("welcome.tsx contains 'harness history' quick-start example — skipped: removed from ready screen quick-start in port", () => {});
-
-  it.skip("welcome.tsx contains all four quick-start examples — skipped: Salazar port has two quick-start examples (run, config) instead of four", () => {});
-
-  it.skip("welcome.tsx contains '✓ Configuration saved to ~/.harness/config.json' — skipped: path changed to ~/.salazar/config.json and symbol changed to [ok] in port", () => {});
+  // NOTE: The Salazar port removed 'harness run --multi' and 'harness history'
+  // from the quick-start examples. The ready screen now shows two commands:
+  // 'salazar run' and 'salazar config'. The config path changed from
+  // ~/.harness/config.json → ~/.salazar/config.json, and ✓ → [ok].
 });
 
 // ---------------------------------------------------------------------------

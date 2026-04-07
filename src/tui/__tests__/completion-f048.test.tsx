@@ -1,18 +1,11 @@
 /**
  * F048 — Completion screen component
  *
- * The original completion-f048.test.tsx was empty (not yet authored in the old CLI).
  * The Completion component is exported from components/completion.tsx and its
  * formatCost helper is also used by components/stats-rows.tsx (tested in F047).
- *
- * Skipped: original test file was empty.
  */
 
 import { describe, it, expect } from "vitest";
-
-describe.skip("F048 — Completion screen (file was empty in original CLI)", () => {
-  it.skip("skipped — no tests were authored in original file", () => {});
-});
 
 // Minimal smoke test: verify Completion is importable and is a function
 describe("F048 — Completion component smoke tests", () => {

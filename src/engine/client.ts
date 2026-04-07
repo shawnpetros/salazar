@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { toJSONSchema } from "zod";
+import type { z } from "zod";
 import { getOutputDir, ensureRuntimeDirs } from "../lib/paths.js";
 import { bashSecurityHook } from "./security.js";
 import type { SalazarConfig } from "../lib/types.js";
@@ -21,9 +23,20 @@ export function makeQueryOptions(opts: {
   cwd?: string;
   maxTurns?: number;
   maxBudgetUsd?: number;
+  // When provided, the SDK will constrain the agent's final response to valid
+  // JSON matching this schema — eliminates regex-based JSON extraction.
+  outputSchema?: z.ZodTypeAny;
 }) {
   ensureRuntimeDirs();
   const model = opts.config.models[opts.role] ?? opts.config.models.default;
+
+  const outputFormat = opts.outputSchema
+    ? {
+        type: "json_schema" as const,
+        schema: toJSONSchema(opts.outputSchema) as Record<string, unknown>,
+      }
+    : undefined;
+
   return {
     systemPrompt: readPrompt(`${opts.role}.md`),
     allowedTools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"] as string[],
@@ -36,5 +49,6 @@ export function makeQueryOptions(opts: {
     hooks: {
       PreToolUse: [{ matcher: "Bash", hooks: [bashSecurityHook] }],
     },
+    ...(outputFormat ? { outputFormat } : {}),
   };
 }

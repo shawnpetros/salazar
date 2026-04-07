@@ -101,7 +101,7 @@ describe("F043 — halted case renders an exit/error message", () => {
     expect(configWizardJsxIdx).toBeGreaterThanOrEqual(0);
   });
 
-  it.skip("app.tsx renders ✗ symbol in the halted case — skipped: Salazar port removed ✗ from the halted Text node (uses plain error message instead)", () => {});
+  // NOTE: The Salazar port uses a plain error message in the halted case (no ✗ symbol).
 });
 
 // ---------------------------------------------------------------------------
@@ -117,7 +117,8 @@ describe("F043 — PrereqsCheck integration: onDone(false) for failing checkNode
     vi.clearAllMocks();
   });
 
-  it.skip("PrereqsCheck calls onDone(false) when checkNode() returns { passed: false } — skipped: checkAll() is inlined in prereqs.tsx (not a separate lib/prereqs.js module to mock)", () => {});
+  // NOTE: checkAll() is inlined in prereqs.tsx (not a separate lib/prereqs.js module),
+  // so module-level mocking of individual check results is not applicable here.
 
   it("prereqs.tsx source calls onDone with allPassed derived from checks", () => {
     const content = readFileSync(

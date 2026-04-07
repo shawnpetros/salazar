@@ -60,13 +60,9 @@ describe("F042 — app.tsx source: saveConfig integration", () => {
     expect(content).toMatch(/evaluator.*evaluatorModel|evaluatorModel.*evaluator/s);
   });
 
-  it.skip("app.tsx imports DEFAULT_CONFIG from lib/config — skipped: DEFAULT_CONFIG is not exported from new config.ts (it is an internal constant)", () => {});
-
-  it.skip("app.tsx imports writeConfig from lib/config — skipped: renamed to saveConfig in Salazar port", () => {});
-
-  it.skip("app.tsx maps dashboardUrl into HarnessConfig.dashboard.url — skipped: dashboardUrl/dashboard fields removed in Salazar port (SalazarConfig has no dashboard field)", () => {});
-
-  it.skip("app.tsx maps dashboardSecret into HarnessConfig.dashboard.secret — skipped: dashboardSecret/dashboard fields removed in Salazar port", () => {});
+  // NOTE: DEFAULT_CONFIG is not exported (internal constant), writeConfig was renamed
+  // to saveConfig, and dashboard fields (dashboardUrl/dashboardSecret) were removed
+  // entirely from SalazarConfig in the Salazar port.
 });
 
 // ---------------------------------------------------------------------------
@@ -117,11 +113,8 @@ describe("F042 — saveConfig/loadConfig round-trip", () => {
     expect("dashboard" in config).toBe(false);
   });
 
-  it.skip("isFirstRun() returns true when no config file exists — skipped: isFirstRun(path) removed from public API; now uses internal path detection via getConfigPath()", () => {});
-
-  it.skip("writeConfig() creates the config file and isFirstRun() then returns false — skipped: writeConfig/isFirstRun(path) API removed in Salazar port", () => {});
-
-  it.skip("writeConfig() persists WizardConfig values including dashboardUrl/dashboardSecret — skipped: dashboard fields removed from SalazarConfig in Salazar port", () => {});
-
-  it.skip("writeConfig() creates parent directory if it does not exist — skipped: writeConfig(config, path) API removed; new saveConfig() uses fixed config path", () => {});
+  // NOTE: isFirstRun(path) and writeConfig(config, path) APIs were removed in the
+  // Salazar port. isFirstRun() is now an internal function using getConfigPath().
+  // saveConfig() uses a fixed path and does not accept a path argument.
+  // Dashboard fields were removed from SalazarConfig entirely.
 });
