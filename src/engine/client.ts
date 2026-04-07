@@ -6,7 +6,8 @@ import { bashSecurityHook } from "./security.js";
 import type { SalazarConfig } from "../lib/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROMPTS_DIR = join(__dirname, "../../prompts");
+// tsup bundles into flat dist/ — __dirname is dist/, prompts is at repo root
+const PROMPTS_DIR = join(__dirname, "../prompts");
 
 export function readPrompt(name: string): string {
   return readFileSync(join(PROMPTS_DIR, name), "utf-8");
