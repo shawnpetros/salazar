@@ -6,13 +6,13 @@
     {
       "id": "P0",
       "name": "TypeScript Port",
-      "status": "in_progress",
+      "status": "complete",
       "features": [
         {
           "id": "P0-F1",
           "name": "Project Scaffold",
           "description": "New root package.json, tsconfig, tsup config, directory structure, copy system prompts",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given the repo root, when npm install runs, then all deps install without error",
             "Given the scaffold, when tsc --noEmit runs, then it succeeds with no source files"
@@ -22,7 +22,7 @@
           "id": "P0-F2",
           "name": "Types, Paths, Events, Config",
           "description": "Shared foundations: event types, runtime paths, typed EventEmitter, config load/save",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given no config file exists, when loadConfig() is called, then it returns defaults with claude-sonnet-4-6",
             "Given a config is saved, when loadConfig() is called, then it returns the saved values",
@@ -33,7 +33,7 @@
           "id": "P0-F3",
           "name": "Agent SDK Client & Security",
           "description": "Options factory for query() calls, bash command allowlist hook",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given role=generator, when makeQueryOptions is called, then it returns correct model and prompt",
             "Given 'npm run test', when bashSecurityHook is called, then it returns allow",
@@ -44,7 +44,7 @@
           "id": "P0-F4",
           "name": "Progress Tracking",
           "description": "Read/write feature_list.json, find next incomplete feature",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given no feature_list.json, when readProgress is called, then it returns null",
             "Given a feature_list.json with 3/5 passing, when readProgress is called, then percent is 60"
@@ -54,7 +54,7 @@
           "id": "P0-F5",
           "name": "Validators (Node/TS only)",
           "description": "Detect package manager and scripts from package.json, run validators with timeouts",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a package.json with pnpm-lock.yaml, when detectValidators is called, then packageManager is pnpm",
             "Given validators pass, when allPassed is called, then it returns true"
@@ -64,7 +64,7 @@
           "id": "P0-F6",
           "name": "SQLite Storage",
           "description": "Session, feature, timeline, commit tables via better-sqlite3",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a new db, when createSession is called, then getSession returns the session",
             "Given features inserted, when getFeatureSummary is called, then total and passing counts are correct"
@@ -74,7 +74,7 @@
           "id": "P0-F7",
           "name": "Planner Agent",
           "description": "One-shot agent that decomposes spec into feature_list.json via claude-agent-sdk",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a spec file, when runPlanner completes, then feature_list.json exists in the output dir"
           ]
@@ -83,7 +83,7 @@
           "id": "P0-F8",
           "name": "Generator Agent",
           "description": "Per-feature agent that implements via TDD with 5-min timeout and 50-turn cap",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a feature and no feedback, when runGenerator completes, then it returns success/cost/error"
           ]
@@ -92,7 +92,7 @@
           "id": "P0-F9",
           "name": "Evaluator Agent",
           "description": "Adversarial reviewer with weighted rubric, min 7.0 to pass",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a completed feature, when runEvaluator completes, then it returns score and dimension breakdown"
           ]
@@ -101,7 +101,7 @@
           "id": "P0-F10",
           "name": "Orchestrator Core Loop",
           "description": "Greenfield planner->generator->evaluator loop with event emission, extends TypedEmitter",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a spec, when orchestrator.run() completes, then sessionStart and sessionComplete events were emitted",
             "Given a simple feature, when the loop processes it, then evaluator is skipped"
@@ -111,7 +111,7 @@
           "id": "P0-F11",
           "name": "CLI Entry Point",
           "description": "meow CLI routing: salazar run <spec> (headless), salazar (TUI), salazar config, salazar history",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given 'salazar run spec.md', when the CLI parses args, then it spawns the orchestrator headless",
             "Given 'salazar --help', then it prints usage text"
@@ -121,7 +121,7 @@
           "id": "P0-F12",
           "name": "TUI Integration",
           "description": "useEngine hook subscribes to orchestrator events, existing Ink components rewired",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a running orchestrator, when featureStart is emitted, then the TUI progress updates",
             "Given the TUI launches, when no spec is given, then it shows the onboarding/launcher view"
@@ -131,7 +131,7 @@
           "id": "P0-F13",
           "name": "Build, Package, Clean Up",
           "description": "Remove Python artifacts, update README, verify npm link works",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given 'npm run build', when it completes, then dist/index.js exists with shebang",
             "Given 'npm link && salazar --help', then help text prints correctly"
@@ -141,10 +141,20 @@
           "id": "P0-F14",
           "name": "Smoke Test on Real Spec",
           "description": "Run ported Salazar against a minimal spec, verify end-to-end output",
-          "status": "not_started",
+          "status": "complete",
           "scenarios": [
             "Given a counter library spec, when salazar run completes, then features were planned and built",
             "Given the output directory, when tests are run, then they pass"
+          ]
+        },
+        {
+          "id": "P0-F15",
+          "name": "Zod Contract Gates",
+          "description": "Schema-validated handoffs between agents using Zod — planner and evaluator outputs validated and retried on failure",
+          "status": "complete",
+          "scenarios": [
+            "Given the planner writes invalid feature_list.json, when validateHandoff runs, then it retries with schema error feedback",
+            "Given the evaluator returns unparseable JSON, when the internal retry loop runs, then it retries up to 3 times before failing"
           ]
         }
       ]

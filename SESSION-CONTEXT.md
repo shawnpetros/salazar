@@ -1,24 +1,24 @@
 ## Status
 
-Salazar is being ported from Python+Node polyglot to a single TypeScript package. Plan written, branch created, ready to execute.
+TypeScript port complete and smoke-tested. Single npm package replaces Python+Node polyglot. 58 unit tests, 15/15 features built in smoke test (66 generated tests). Zod contract gates added for agent handoffs.
 
 ## In-Flight
 
-- **TS Port (P0)**: 14 tasks, 0 complete. Plan at `docs/superpowers/plans/2026-04-06-ts-port.md`
-- Brownfield, multi-orchestrator, and dashboard webhooks intentionally deferred
-- Using `@anthropic-ai/claude-agent-sdk` (TS) to replace `claude-agent-sdk` (Python)
+- Branch `feat/ts-port` ready to merge to main (18 commits)
+- Old Python `salazar` command still in PATH via pipx — needs `pipx uninstall salazar` before merge
 
 ## Key Details
 
 - Repo: github.com/shawnpetros/salazar
-- Branch: `feat/ts-port` (work branch, merge to main when done)
-- Agent SDK: `@anthropic-ai/claude-agent-sdk` — same `query()` API as Python
-- Architecture: Single npm package, engine emits typed events, TUI subscribes directly
-- Old Python (`salazar/`) and old CLI (`cli/`) stay until Task 13 cleanup
+- Package: `@anthropic-ai/claude-agent-sdk` for programmatic Claude Code sessions (not raw API)
+- Agent SDK `cwd` does NOT enforce file write location — absolute paths required in prompts
+- Evaluator JSON parse failures fixed by Zod contract gates with internal retry (3 attempts)
+- Output dir needs `git init` before builds (git commit warnings in smoke test)
 
 ## Next Steps
 
-1. Create `feat/ts-port` branch
-2. Execute Task 1 (scaffold) through Task 14 (smoke test)
-3. Tasks 3-6 and 7-9 are parallelizable
-4. Merge to main when smoke test passes
+1. `pipx uninstall salazar` then merge feat/ts-port → main
+2. Init git repo in output dir automatically (orchestrator.run())
+3. Improve TUI — migrate rich components from old cli/src/components/ (progress bars, timeline, evaluator scores)
+4. Explore Agent SDK `outputFormat` option for structured outputs (may eliminate need for JSON parsing entirely)
+5. Brownfield mode (P2) when greenfield is solid
