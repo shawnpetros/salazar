@@ -80,7 +80,6 @@ describe("TUI E2E Flows", () => {
             id: "F003",
             name: "Add authentication",
             phase: "generate" as const,
-            iteration: 1,
           },
         })
       );
@@ -155,6 +154,7 @@ describe("TUI E2E Flows", () => {
             cost: 9.79,
           },
           outputDir: "/tmp/test-output",
+          onDone: () => {},
         })
       );
       const output = strip(lastFrame() ?? "");
@@ -175,6 +175,7 @@ describe("TUI E2E Flows", () => {
             cost: 6.50,
           },
           outputDir: "/tmp/test-output",
+          onDone: () => {},
         })
       );
       const output = strip(lastFrame() ?? "");

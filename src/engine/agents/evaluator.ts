@@ -94,6 +94,7 @@ async function runEvalSession(
     config,
     cwd: outputDir,
     maxBudgetUsd: 15.0,
+    outputSchema: EvalOutputSchema,
   });
 
   let responseText = "";
