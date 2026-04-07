@@ -2,20 +2,42 @@
   "name": "salazar",
   "version": "0.2.0",
   "description": "Autonomous coding orchestrator. The tool that builds itself.",
+  "author": "Shawn Petros",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shawnpetros/salazar.git"
+  },
+  "homepage": "https://github.com/shawnpetros/salazar",
+  "keywords": [
+    "ai",
+    "autonomous",
+    "coding",
+    "orchestrator",
+    "claude",
+    "agent",
+    "tdd",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "bin": {
     "salazar": "./dist/index.js"
   },
   "files": [
     "dist/",
-    "prompts/"
+    "prompts/",
+    "skills/"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "latest",
