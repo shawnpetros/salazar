@@ -1,8 +1,8 @@
 /**
- * F043 — Wizard halts and shows exit message when critical prerequisites fail
+ * F043 -- Wizard halts and shows exit message when critical prerequisites fail
  *
  * Verifies that:
- *  - WizardScreen type includes the "halted" state
+ *  - Screen type includes the "halted" state
  *  - handlePrereqsDone checks the allPassed flag (source inspection)
  *  - When allPassed is false the wizard sets screen to "halted", not "config"
  *  - When allPassed is true  the wizard sets screen to "config"
@@ -12,7 +12,7 @@
  * NOTE: The old harness had a separate lib/prereqs.js module to vi.mock.
  * In the Salazar port, checkAll() is inlined in prereqs.tsx. Tests that
  * relied on mocking lib/prereqs.js are skipped with explanations.
- * The halted case text was simplified — no ✗ symbol in the halted Text node.
+ * The halted case text was simplified -- no cross-mark symbol in the halted Text node.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -29,27 +29,27 @@ function loadAppSource(): string {
 }
 
 // ---------------------------------------------------------------------------
-// Source-level assertions — WizardScreen includes "halted"
+// Source-level assertions -- Screen includes "halted"
 // ---------------------------------------------------------------------------
 
-describe("F043 — WizardScreen type includes 'halted'", () => {
-  it("app.tsx WizardScreen type includes the 'halted' variant", () => {
+describe("F043 -- Screen type includes 'halted'", () => {
+  it("app.tsx Screen type includes the 'halted' variant", () => {
     const content = loadAppSource();
     expect(content).toContain('"halted"');
   });
 
-  it("WizardScreen is exported from app.tsx", async () => {
+  it("Screen is exported from app.tsx", async () => {
     // Type-level check: the export should be present in source
     const content = loadAppSource();
-    expect(content).toMatch(/export type WizardScreen/);
+    expect(content).toMatch(/export type Screen/);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Source-level assertions — handlePrereqsDone is conditional on allPassed
+// Source-level assertions -- handlePrereqsDone is conditional on allPassed
 // ---------------------------------------------------------------------------
 
-describe("F043 — handlePrereqsDone is conditional on allPassed", () => {
+describe("F043 -- handlePrereqsDone is conditional on allPassed", () => {
   it("app.tsx handlePrereqsDone checks allPassed before advancing", () => {
     const content = loadAppSource();
     // The handler should test allPassed (not prefix with _)
@@ -58,7 +58,7 @@ describe("F043 — handlePrereqsDone is conditional on allPassed", () => {
 
   it("app.tsx only calls setScreen('config') when allPassed is true", () => {
     const content = loadAppSource();
-    // Should have a conditional branch — look for if(allPassed) or similar
+    // Should have a conditional branch -- look for if(allPassed) or similar
     expect(content).toMatch(/if\s*\(\s*allPassed\s*\)/);
   });
 
@@ -75,10 +75,10 @@ describe("F043 — handlePrereqsDone is conditional on allPassed", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Source-level assertions — halted case renders an exit message
+// Source-level assertions -- halted case renders an exit message
 // ---------------------------------------------------------------------------
 
-describe("F043 — halted case renders an exit/error message", () => {
+describe("F043 -- halted case renders an exit/error message", () => {
   it("app.tsx switch has a case for 'halted'", () => {
     const content = loadAppSource();
     expect(content).toMatch(/case\s+["']halted["']/);
@@ -101,14 +101,14 @@ describe("F043 — halted case renders an exit/error message", () => {
     expect(configWizardJsxIdx).toBeGreaterThanOrEqual(0);
   });
 
-  // NOTE: The Salazar port uses a plain error message in the halted case (no ✗ symbol).
+  // NOTE: The Salazar port uses a plain error message in the halted case (no cross-mark symbol).
 });
 
 // ---------------------------------------------------------------------------
 // PrereqsCheck calls onDone(false) when a check fails
 // ---------------------------------------------------------------------------
 
-describe("F043 — PrereqsCheck integration: onDone(false) for failing checkNode", () => {
+describe("F043 -- PrereqsCheck integration: onDone(false) for failing checkNode", () => {
   beforeEach(() => {
     vi.resetModules();
   });
@@ -135,7 +135,7 @@ describe("F043 — PrereqsCheck integration: onDone(false) for failing checkNode
       resolve(srcRoot, "components/prereqs.tsx"),
       "utf-8"
     );
-    // Port changed ✗ → [!!] for failing check display
+    // Port changed cross-mark to [!!] for failing check display
     expect(content).toContain("[!!]");
     expect(content).toContain("hint");
   });
@@ -153,7 +153,7 @@ describe("F043 — PrereqsCheck integration: onDone(false) for failing checkNode
 // F041 regression: OnboardingWizard still works after the change
 // ---------------------------------------------------------------------------
 
-describe("F043 — F041 regression: OnboardingWizard still callable", () => {
+describe("F043 -- F041 regression: OnboardingWizard still callable", () => {
   it("OnboardingWizard() can be called directly without throwing", async () => {
     const { OnboardingWizard } = await import("../app.js");
     expect(() => OnboardingWizard()).not.toThrow();
@@ -161,12 +161,12 @@ describe("F043 — F041 regression: OnboardingWizard still callable", () => {
     expect(result).toBeDefined();
   });
 
-  it("WizardScreen export still contains welcome, prereqs, config, ready, halted", () => {
+  it("Screen export still contains welcome, prereqs, config, launcher, halted", () => {
     const content = loadAppSource();
     expect(content).toContain('"welcome"');
     expect(content).toContain('"prereqs"');
     expect(content).toContain('"config"');
-    expect(content).toContain('"ready"');
+    expect(content).toContain('"launcher"');
     expect(content).toContain('"halted"');
   });
 });

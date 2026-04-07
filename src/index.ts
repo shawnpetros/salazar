@@ -51,7 +51,7 @@ if (command === "run") {
   engine.on("sessionError", e => { console.error(`[salazar] Error: ${e.error}`); process.exit(1); });
 
   await engine.run();
-} else if (!command || command === "config") {
+} else if (!command || command === "config" || command === "history") {
   // TUI mode
   const React = await import("react");
   const { render } = await import("ink");

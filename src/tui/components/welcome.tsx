@@ -1,7 +1,7 @@
 /**
  * Welcome screen component — shown on first launch or before starting a run.
  *
- * Renders a gradient title, a brief description of the harness, and a
+ * Renders a gradient title, a brief description of the orchestrator, and a
  * 'Press Enter to continue' prompt. Pressing Enter invokes the `onContinue`
  * callback so the parent can advance to the next screen.
  *
@@ -24,10 +24,10 @@ export interface WelcomeProps {
 }
 
 /**
- * Welcome screen for the harness CLI.
+ * Welcome screen for the Salazar CLI.
  *
  * Displays the application title using an ink-gradient colour wash, a short
- * description of what the harness does, and a 'Press Enter to continue'
+ * description of what the orchestrator does, and a 'Press Enter to continue'
  * prompt. Pressing the Enter key calls {@link WelcomeProps.onContinue}.
  *
  * @param props - {@link WelcomeProps}
@@ -73,7 +73,7 @@ export function Welcome({ onContinue }: WelcomeProps): React.ReactElement {
 export interface ReadyScreenProps {
   /**
    * Callback invoked when the user presses Enter to leave the ready screen
-   * and begin using the harness.
+   * and begin using Salazar.
    */
   onDone: () => void;
 }

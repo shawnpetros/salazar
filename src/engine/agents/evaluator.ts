@@ -141,7 +141,8 @@ export async function runEvaluator(
   const basePrompt =
     `Evaluate the implementation of feature **${featureId}**: ${description}\n\n` +
     `### BDD Scenario\n${stepsText}\n\n` +
-    `Review the code in the current directory. The feature was just implemented. ` +
+    `Review the code in: ${outputDir}\n` +
+    `The feature was just implemented. ` +
     `Use \`git diff HEAD~1\` to see what changed. Run tests, check types, and ` +
     `score the implementation using your rubric.\n\n` +
     SCHEMA_DESCRIPTION;

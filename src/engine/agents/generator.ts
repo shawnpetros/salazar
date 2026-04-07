@@ -5,6 +5,7 @@
  * directory, and returns whether the feature was marked as passing.
  */
 
+import { join } from "node:path";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { makeQueryOptions } from "../client.js";
 import { readProgress, formatProgressHeader } from "../progress.js";
@@ -38,6 +39,8 @@ export async function runGenerator(
       ? feature.steps.map((s) => `  - ${s}`).join("\n")
       : "  (no BDD steps defined)";
 
+  const featureListPath = join(outputDir, "feature_list.json");
+
   // Assemble prompt parts
   const promptParts: string[] = [
     progressHeader,
@@ -55,8 +58,10 @@ export async function runGenerator(
   }
 
   promptParts.push(
-    "Implement this feature, write tests, verify everything passes, " +
-      "commit your changes, and update feature_list.json.",
+    `Implement this feature, write tests, verify everything passes. ` +
+      `All code should be written in: ${outputDir}\n` +
+      `Update the feature list at: ${featureListPath} — set passes to true for feature ${featureId} only.\n` +
+      `Do NOT run git commit — the orchestrator handles commits.`,
   );
 
   const prompt = promptParts.join("");

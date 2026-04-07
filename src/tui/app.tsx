@@ -2,13 +2,20 @@
  * app.tsx -- Root Ink component for the Salazar CLI.
  *
  * Routes to the onboarding wizard on first run (when no config exists and no
- * subcommand was given), or to the appropriate command component when a
- * subcommand is provided.
+ * subcommand was given), or to the launcher for returning users, or to the
+ * appropriate command component when a subcommand is provided.
  *
- * Onboarding state machine:
- *   welcome -> prereqs -> config -> ready -> (exit)
+ * First-run state machine:
+ *   welcome -> prereqs -> config -> launcher
  *
- * Command routing:
+ * Returning user:
+ *   launcher (directly)
+ *
+ * Launcher -> New Build -> RunDashboard
+ * Launcher -> Settings  -> ConfigWizard -> launcher
+ * Launcher -> History   -> InteractiveHistoryList -> launcher
+ *
+ * Command routing (headless / subcommand):
  *   "run"     -> RunDashboard
  *   "config"  -> ConfigWizard
  *   "history" -> InteractiveHistoryList
@@ -18,12 +25,15 @@ import React, { useState } from "react";
 import { Text } from "ink";
 import { existsSync } from "node:fs";
 import { loadConfig, saveConfig } from "../lib/config.js";
-import { getConfigPath } from "../lib/paths.js";
+import { getConfigPath, getOutputDir } from "../lib/paths.js";
+import { getDb } from "../engine/storage.js";
 import type { SalazarConfig } from "../lib/types.js";
-import { Welcome, ReadyScreen } from "./components/welcome.js";
+import { Welcome } from "./components/welcome.js";
 import { PrereqsCheck } from "./components/prereqs.js";
 import { ConfigWizard, type WizardConfig } from "./components/config-wizard.js";
 import { RunDashboard } from "./components/run-dashboard.js";
+import { Launcher, type LauncherAction } from "./components/launcher.js";
+import { NewBuild, type NewBuildResult } from "./components/new-build.js";
 import { InteractiveHistoryList, loadSessions } from "./commands/history.js";
 
 // ---------------------------------------------------------------------------
@@ -35,22 +45,49 @@ function isFirstRun(): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Wizard state machine types
+// Resume detection -- check for sessions with state='running' in SQLite
 // ---------------------------------------------------------------------------
 
-export type WizardScreen = "welcome" | "prereqs" | "config" | "ready" | "halted";
+function hasResumableSession(): boolean {
+  try {
+    const db = getDb();
+    const active = db.getActiveSessions();
+    return active.length > 0;
+  } catch {
+    return false;
+  }
+}
 
 // ---------------------------------------------------------------------------
-// Internal wizard state machine component
+// Screen types
 // ---------------------------------------------------------------------------
 
-function WizardStateMachine(): React.ReactElement {
-  const [screen, setScreen] = useState<WizardScreen>("welcome");
+export type Screen =
+  | "welcome"
+  | "prereqs"
+  | "config"
+  | "launcher"
+  | "new-build"
+  | "run"
+  | "history"
+  | "settings"
+  | "halted";
 
+// ---------------------------------------------------------------------------
+// Internal TUI state machine component
+// ---------------------------------------------------------------------------
+
+function TuiStateMachine({ initialScreen }: { initialScreen: Screen }): React.ReactElement {
+  const [screen, setScreen] = useState<Screen>(initialScreen);
+  const [runSpec, setRunSpec] = useState<string | null>(null);
+  const [runOutputDir, setRunOutputDir] = useState<string | null>(null);
+
+  // -- Welcome --
   const handleWelcomeContinue = (): void => {
     setScreen("prereqs");
   };
 
+  // -- Prereqs --
   const handlePrereqsDone = (allPassed: boolean): void => {
     if (allPassed) {
       setScreen("config");
@@ -59,7 +96,8 @@ function WizardStateMachine(): React.ReactElement {
     }
   };
 
-  const handleConfigSave = (cfg: WizardConfig): void => {
+  // -- Config (first-run) --
+  const handleFirstRunConfigSave = (cfg: WizardConfig): void => {
     const config = loadConfig();
     const updatedConfig: SalazarConfig = {
       ...config,
@@ -70,45 +108,141 @@ function WizardStateMachine(): React.ReactElement {
       },
     };
     saveConfig(updatedConfig);
-    setScreen("ready");
+    setScreen("launcher");
   };
 
-  const handleReadyDone = (): void => {
-    process.exit(0);
+  // -- Launcher --
+  const handleLauncherSelect = (action: LauncherAction): void => {
+    switch (action) {
+      case "new-build":
+        setScreen("new-build");
+        break;
+      case "history":
+        setScreen("history");
+        break;
+      case "settings":
+        setScreen("settings");
+        break;
+      case "resume":
+        // For now, resume goes to launcher -- full resume support is future work
+        setScreen("launcher");
+        break;
+    }
   };
 
+  // -- New Build --
+  const handleNewBuildConfirm = (result: NewBuildResult): void => {
+    // Save lastOutputDir for next time
+    const config = loadConfig();
+    const updatedConfig: SalazarConfig = {
+      ...config,
+      lastOutputDir: result.outputDir,
+    };
+    saveConfig(updatedConfig);
+
+    setRunSpec(result.specPath);
+    setRunOutputDir(result.outputDir);
+    setScreen("run");
+  };
+
+  const handleNewBuildCancel = (): void => {
+    setScreen("launcher");
+  };
+
+  // -- Settings --
+  const handleSettingsSave = (cfg: WizardConfig): void => {
+    const config = loadConfig();
+    const updatedConfig: SalazarConfig = {
+      ...config,
+      models: {
+        ...config.models,
+        generator: cfg.generatorModel,
+        evaluator: cfg.evaluatorModel,
+      },
+    };
+    saveConfig(updatedConfig);
+    setScreen("launcher");
+  };
+
+  // -- History --
+  const handleHistoryExit = (): void => {
+    setScreen("launcher");
+  };
+
+  // -- Routing --
   switch (screen) {
     case "welcome":
       return <Welcome onContinue={handleWelcomeContinue} />;
+
     case "prereqs":
       return <PrereqsCheck onDone={handlePrereqsDone} />;
+
     case "config":
-      return <ConfigWizard onSave={handleConfigSave} />;
-    case "ready":
-      return <ReadyScreen onDone={handleReadyDone} />;
+      return <ConfigWizard onSave={handleFirstRunConfigSave} />;
+
+    case "launcher": {
+      const resumable = hasResumableSession();
+      return <Launcher hasResumable={resumable} onSelect={handleLauncherSelect} />;
+    }
+
+    case "new-build": {
+      const config = loadConfig();
+      const defaultDir = config.lastOutputDir || getOutputDir();
+      const model = config.models.generator;
+      return (
+        <NewBuild
+          defaultOutputDir={defaultDir}
+          modelName={model}
+          onConfirm={handleNewBuildConfirm}
+          onCancel={handleNewBuildCancel}
+        />
+      );
+    }
+
+    case "run":
+      if (!runSpec) {
+        return <Text color="red">{"Error: no spec file provided."}</Text>;
+      }
+      return <RunDashboard specPath={runSpec} outputDir={runOutputDir ?? undefined} />;
+
+    case "settings": {
+      const config = loadConfig();
+      const initialValues: WizardConfig = {
+        generatorModel: config.models.generator,
+        evaluatorModel: config.models.evaluator,
+      };
+      return <ConfigWizard onSave={handleSettingsSave} initialValues={initialValues} />;
+    }
+
+    case "history": {
+      const sessions = loadSessions();
+      return <InteractiveHistoryList sessions={sessions} onExit={handleHistoryExit} />;
+    }
+
     case "halted":
       return (
         <Text color="red">
           {"Setup halted: one or more critical prerequisites failed. Please install the missing dependencies and run salazar again."}
         </Text>
       );
+
     default: {
       const _exhaustive: never = screen;
-      return <Text>Unknown wizard screen</Text>;
+      return <Text>{"Unknown screen: "}{_exhaustive}</Text>;
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Public OnboardingWizard
+// Public OnboardingWizard -- preserved for backward compatibility
 // ---------------------------------------------------------------------------
 
 export function OnboardingWizard(): React.ReactElement {
-  return <WizardStateMachine />;
+  return <TuiStateMachine initialScreen="welcome" />;
 }
 
 // ---------------------------------------------------------------------------
-// View components
+// View components for subcommand routing
 // ---------------------------------------------------------------------------
 
 function RunView({ specPath }: { specPath?: string }): React.ReactElement {
@@ -157,7 +291,7 @@ function HistoryView(): React.ReactElement {
 // Routing
 // ---------------------------------------------------------------------------
 
-export type AppView = "onboarding" | "run" | "config" | "history";
+export type AppView = "onboarding" | "launcher" | "run" | "config" | "history";
 
 export interface AppProps {
   command?: string;
@@ -167,7 +301,7 @@ export interface AppProps {
 
 export function selectView(
   command: string | undefined,
-  _firstRun: boolean,
+  firstRun: boolean,
 ): AppView {
   switch (command) {
     case "run":
@@ -177,7 +311,7 @@ export function selectView(
     case "history":
       return "history";
     default:
-      return "onboarding";
+      return firstRun ? "onboarding" : "launcher";
   }
 }
 
@@ -196,6 +330,8 @@ export function App({ command, specPath, firstRun }: AppProps): React.ReactEleme
       return <ConfigView />;
     case "history":
       return <HistoryView />;
+    case "launcher":
+      return <TuiStateMachine initialScreen="launcher" />;
     case "onboarding":
     default:
       return <OnboardingWizard />;

@@ -6,6 +6,10 @@
   "bin": {
     "salazar": "./dist/index.js"
   },
+  "files": [
+    "dist/",
+    "prompts/"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

@@ -1,5 +1,5 @@
 /**
- * Completion screen component — shown when a harness session finishes.
+ * Completion screen component — shown when a Salazar session finishes.
  *
  * Renders a summary of the completed session including:
  *  - Number of features passed out of total
@@ -19,7 +19,7 @@
  * render(
  *   <Completion
  *     event={{ type: 'session_complete', passing: 38, totalFeatures: 38, durationMs: 60000, cost: 9.27 }}
- *     outputDir="/tmp/harness-output"
+ *     outputDir="/tmp/salazar-output"
  *     dashboardUrl="http://localhost:3000"
  *     onDone={() => process.exit(0)}
  *   />
@@ -44,7 +44,7 @@ export interface CompletionProps {
   event: SessionCompleteEvent;
 
   /**
-   * Absolute path to the directory where harness output was written.
+   * Absolute path to the directory where Salazar output was written.
    * Always displayed on the completion screen.
    */
   outputDir: string;
@@ -88,9 +88,9 @@ export function formatCost(cost: number): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Completion screen for the harness CLI.
+ * Completion screen for the Salazar CLI.
  *
- * Displayed when a harness session finishes (either success or after all
+ * Displayed when a Salazar session finishes (either success or after all
  * features have been attempted). Shows a green summary of pass count, cost,
  * output directory, an optional dashboard link, and an Enter-to-exit prompt.
  *
