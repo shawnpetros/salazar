@@ -28,7 +28,8 @@
   },
   "files": [
     "dist/",
-    "prompts/"
+    "prompts/",
+    "skills/"
   ],
   "scripts": {
     "build": "tsup",
