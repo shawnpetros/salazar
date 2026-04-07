@@ -5,6 +5,7 @@ const cli = meow(`
     $ salazar run <spec.md>    Build from a spec (headless)
     $ salazar                  Launch the TUI
     $ salazar config           Configure models
+    $ salazar dashboard        Local monitoring dashboard
     $ salazar install-skill    Install agent skill for AI coding agents
 
   Options
@@ -12,6 +13,8 @@ const cli = meow(`
     --model-evaluator    Evaluator model override
     --output-dir         Where to write generated code
     --global             Install skill to ~/.claude/skills/ instead of project-local
+    --port               Dashboard port (default: 3274)
+    --host               Dashboard host (default: localhost, use 0.0.0.0 for Tailscale)
 `, {
   importMeta: import.meta,
   flags: {
@@ -19,6 +22,8 @@ const cli = meow(`
     modelEvaluator: { type: "string" },
     outputDir: { type: "string" },
     global: { type: "boolean", default: false },
+    port: { type: "string" },
+    host: { type: "string" },
   },
 });
 
@@ -105,6 +110,12 @@ if (command === "run") {
 
   console.log(`Installed salazar skill to ${displayPath}`);
   console.log("Agents will now know how to use salazar for autonomous builds.");
+} else if (command === "dashboard") {
+  const { startDashboard } = await import("./dashboard/server.js");
+  startDashboard({
+    port: cli.flags.port ? parseInt(cli.flags.port, 10) : undefined,
+    host: cli.flags.host ?? undefined,
+  });
 } else if (!command || command === "config" || command === "history") {
   // TUI mode
   const React = await import("react");
