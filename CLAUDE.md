@@ -1,40 +1,53 @@
-# Agent-ID
+# Salazar
 
 ## Purpose
 
-Autonomous coding harness + monitoring dashboard that builds an open standard for AI agent identity and trust attestation (Agent Identity Token / AIT). The harness uses a planner/generator/evaluator agent loop to produce three deliverables: an IETF-style spec, a TypeScript reference SDK, and a Vercel-hosted verification service.
+Autonomous coding orchestrator that builds software end-to-end from a markdown spec. Uses a planner/generator/evaluator agent loop via `@anthropic-ai/claude-agent-sdk` with hard validator gates (tsc, eslint, build, test). Single TypeScript package — install with `npm i -g salazar`.
 
 ## Brain Sync
 
-Search terms: `agent-id`, `agent identity`, `trust attestation`, `AIT`, `harness`, `Avistar`, `open standard`, `RSAC`
+Search terms: `salazar`, `autonomous coding`, `harness`, `agent loop`, `Avistar`, `coding orchestrator`
 
 ## Feature Tracker
 
 See `features.json` for structured phase/feature tracking using STOP framework.
 
 Current phases:
-- P0: Direction & Foundation
-- P1: Harness (Python orchestrator)
-- P2: Dashboard (Next.js monitor)
-- P3: Agent-ID Spec (IETF Internet-Draft)
-- P4: Reference SDK (@agent-id/sdk)
-- P5: Verification Service (Next.js API)
+- P0: TypeScript Port (in progress)
+- P1: Distribution & Install
+- P2: Brownfield (future)
 
 ## Project Structure
 
 ```
-agent-id/
-├── dashboard/       # Next.js monitoring app (Vercel-deployed)
-├── harness/         # Python autonomous coding orchestrator
-├── output/          # Where the harness generates agent-id code
-├── north-star.txt   # Strategic vision
-└── features.json    # STOP framework feature tracker
+salazar/
+├── src/
+│   ├── index.ts             # CLI entry point (meow)
+│   ├── engine/
+│   │   ├── orchestrator.ts  # Core loop: planner → generator → evaluator
+│   │   ├── agents/          # planner.ts, generator.ts, evaluator.ts
+│   │   ├── client.ts        # Agent SDK options factory
+│   │   ├── validators.ts    # Node/TS validator detection + execution
+│   │   ├── progress.ts      # feature_list.json R/W
+│   │   ├── storage.ts       # SQLite via better-sqlite3
+│   │   └── security.ts      # Bash command allowlist hook
+│   ├── tui/
+│   │   ├── app.tsx          # Ink TUI app
+│   │   └── hooks/use-engine.ts  # Direct engine integration
+│   └── lib/
+│       ├── types.ts         # All shared interfaces
+│       ├── paths.ts         # ~/.salazar runtime paths
+│       ├── events.ts        # Typed EventEmitter
+│       └── config.ts        # Config load/save
+├── prompts/                 # System prompts (planner.md, generator.md, evaluator.md)
+├── package.json
+└── tsconfig.json
 ```
 
 ## Rules
 
-- Branch workflow: work on `dev` branch, merge to `main` only when ready for production
-- Debug logging required in all API routes and server actions
-- The harness generates code into `output/` — never manually edit that directory
-- Dashboard is a personal dev tool — no auth needed, keep it minimal
-- `claude-agent-sdk` (not `claude-code-sdk`) is the correct Python package
+- Branch workflow: work on feature branches, merge to `main` only when ready for production
+- Debug logging required in all engine modules (console.log with `[module]` prefixes)
+- Generated code goes into `~/.salazar/output/` by default (configurable via --output-dir)
+- `@anthropic-ai/claude-agent-sdk` is the TypeScript SDK for programmatic Claude Code sessions
+- Brownfield mode is intentionally deferred — greenfield only for now

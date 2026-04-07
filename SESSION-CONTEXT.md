@@ -1,39 +1,24 @@
 ## Status
 
-Salazar (renamed from "long-running harness") is functional for greenfield builds. Brownfield mode exists but has bugs that need fixing before use. Dashboard needs a v2 rethink.
+TypeScript port complete and smoke-tested. Single npm package replaces Python+Node polyglot. 58 unit tests, 15/15 features built in smoke test (66 generated tests). Zod contract gates added for agent handoffs.
 
 ## In-Flight
 
-- Left-pad built successfully (15/15, 76 tests, 43 min, $5.47) — in examples/left-pad
-- Brownfield ouroboros test failed — planner went rogue, tests broke from rename, feature_list path issues
-- Dashboard shows data but has gaps (no features card during hardening, scroll issues, stale footer text)
+- Branch `feat/ts-port` ready to merge to main (18 commits)
+- Old Python `salazar` command still in PATH via pipx — needs `pipx uninstall salazar` before merge
 
 ## Key Details
 
-- Repo: github.com/shawnpetros/salazar (renamed from long-running-harness)
-- CLI binary: `salazar` (package name: salazar, was harness-cli)
-- Dashboard: agent-id-shawnpetros-projects.vercel.app (still on old Vercel project name)
-- Proven greenfield builds: mini-jwt (38/38), TUI (63/63), left-pad (15/15)
-- Brownfield NOT ready — needs planner constraint, test count parser fix, rollback validation
-- Banner image generated for branding
+- Repo: github.com/shawnpetros/salazar
+- Package: `@anthropic-ai/claude-agent-sdk` for programmatic Claude Code sessions (not raw API)
+- Agent SDK `cwd` does NOT enforce file write location — absolute paths required in prompts
+- Evaluator JSON parse failures fixed by Zod contract gates with internal retry (3 attempts)
+- Output dir needs `git init` before builds (git commit warnings in smoke test)
 
-## Next Session: Two Priorities
+## Next Steps
 
-### Priority 1: SQLite Storage Layer (interactive)
-Replace dashboard.py webhook pushes with direct SQLite writes to ~/.salazar/salazar.db.
-Schema: sessions, features, timeline, costs tables.
-This is the foundation for dashboard v2 and the `salazar dashboard` local command.
-DO INTERACTIVELY — it touches the core engine.
-
-### Priority 2: Dashboard v2 (can be specced for Salazar)
-New routing: / (active sessions), /session/:id (detail), /history, /history/:id
-Local mode: `salazar dashboard` starts web server, reads SQLite
-Remote mode: optional daemon syncs SQLite → Redis for Vercel deployment
-Better UI: loading states with personality, phase pipeline viz, multi-session support
-Fix commit display (only commit on feature PASS, not retries)
-
-### Brownfield Fixes (before next brownfield attempt)
-- Planner prompt: "ONLY plan features from the spec, not from codebase exploration"
-- Test count parser: match "Tests N passed" not "Test Files N passed"
-- Validate rollback actually works (git checkout . on failure)
-- Session-scoped feature lists need more testing
+1. `pipx uninstall salazar` then merge feat/ts-port → main
+2. Init git repo in output dir automatically (orchestrator.run())
+3. Improve TUI — migrate rich components from old cli/src/components/ (progress bars, timeline, evaluator scores)
+4. Explore Agent SDK `outputFormat` option for structured outputs (may eliminate need for JSON parsing entirely)
+5. Brownfield mode (P2) when greenfield is solid

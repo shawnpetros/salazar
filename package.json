@@ -1,0 +1,37 @@
+{
+  "name": "salazar",
+  "version": "0.2.0",
+  "description": "Autonomous coding orchestrator. The tool that builds itself.",
+  "type": "module",
+  "bin": {
+    "salazar": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "latest",
+    "better-sqlite3": "^11.0.0",
+    "chalk": "^5.0.0",
+    "ink": "^5.0.0",
+    "ink-select-input": "^6.0.0",
+    "ink-spinner": "^5.0.0",
+    "ink-text-input": "^6.0.0",
+    "meow": "^13.0.0",
+    "react": "^18.0.0",
+    "simple-git": "^3.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}
