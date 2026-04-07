@@ -4,6 +4,11 @@
 
 # Salazar
 
+[![npm version](https://img.shields.io/npm/v/salazar-cli.svg)](https://www.npmjs.com/package/salazar-cli)
+[![npm downloads](https://img.shields.io/npm/dm/salazar-cli.svg)](https://www.npmjs.com/package/salazar-cli)
+[![license](https://img.shields.io/npm/l/salazar-cli.svg)](https://github.com/shawnpetros/salazar/blob/main/LICENSE)
+[![node](https://img.shields.io/node/v/salazar-cli.svg)](https://nodejs.org)
+
 *The tool that builds itself.*
 
 An autonomous coding orchestrator that builds software end-to-end from a markdown spec — no human code required. Planner/generator/evaluator agent loop using Claude via `@anthropic-ai/claude-agent-sdk`, with a terminal UI and contract-gated agent handoffs.
