@@ -8,7 +8,9 @@ import { bashSecurityHook } from "./security.js";
 import type { SalazarConfig } from "../lib/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// tsup bundles into flat dist/ — __dirname is dist/, prompts is at repo root
+// tsup bundles into a flat dist/ at package root. __dirname is <pkg>/dist/,
+// so ../prompts resolves to <pkg>/prompts/ — correct for both local dev and
+// global npm installs (prompts/ is included in the package "files" list).
 const PROMPTS_DIR = join(__dirname, "../prompts");
 
 export function readPrompt(name: string): string {
