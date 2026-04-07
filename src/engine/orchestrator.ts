@@ -113,7 +113,7 @@ export class Orchestrator extends TypedEmitter {
         );
 
         const plannerStart = Date.now();
-        const plannerResult = await runPlanner(this.specPath, this.config);
+        const plannerResult = await runPlanner(this.specPath, this.outputDir, this.config);
         const plannerMs = Date.now() - plannerStart;
 
         this.costByAgent.planner += plannerResult.costUsd;

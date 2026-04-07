@@ -6,10 +6,9 @@
  */
 
 import { readFileSync, copyFileSync, existsSync, mkdirSync } from "node:fs";
-import { join, basename } from "node:path";
+import { join } from "node:path";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { makeQueryOptions } from "../client.js";
-import { getOutputDir } from "../../lib/paths.js";
 import type { SalazarConfig } from "../../lib/types.js";
 
 export interface PlannerResult {
@@ -19,23 +18,25 @@ export interface PlannerResult {
 
 export async function runPlanner(
   specPath: string,
+  outputDir: string,
   config: SalazarConfig
 ): Promise<PlannerResult> {
   console.log("[planner] Starting planner agent");
 
-  // Read the spec file
   const specText = readFileSync(specPath, "utf-8");
-
-  // Ensure output directory exists and copy spec into it
-  const outputDir = getOutputDir();
   mkdirSync(outputDir, { recursive: true });
   const destSpecPath = join(outputDir, "app_spec.md");
   copyFileSync(specPath, destSpecPath);
   console.log(`[planner] Copied spec to ${destSpecPath}`);
 
+  const featureListPath = join(outputDir, "feature_list.json");
+
   const prompt =
     `Here is the product specification. Decompose it into a comprehensive ` +
-    `feature list with BDD scenarios.\n\n---\n\n${specText}`;
+    `feature list with BDD scenarios.\n\n` +
+    `IMPORTANT: Write the output to this exact absolute path: ${featureListPath}\n` +
+    `Also read the spec from: ${destSpecPath}\n\n` +
+    `---\n\n${specText}`;
 
   const options = makeQueryOptions({
     role: "planner",
@@ -68,7 +69,6 @@ export async function runPlanner(
   }
 
   // Verify output
-  const featureListPath = join(outputDir, "feature_list.json");
   if (existsSync(featureListPath)) {
     const { statSync } = await import("node:fs");
     const size = statSync(featureListPath).size;
