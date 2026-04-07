@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Autonomous coding orchestrator that builds software end-to-end from a markdown spec. Uses a planner/generator/evaluator agent loop via `@anthropic-ai/claude-agent-sdk` with hard validator gates (tsc, eslint, build, test). Single TypeScript package — install with `npm i -g salazar`.
+Autonomous coding orchestrator that builds software end-to-end from a markdown spec. Uses a planner/generator/evaluator agent loop via `@anthropic-ai/claude-agent-sdk` with hard validator gates (tsc, eslint, build, test). Single TypeScript package — install with `npm i -g salazar-cli`.
 
 ## Brain Sync
 

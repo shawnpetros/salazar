@@ -19,7 +19,7 @@ CONF
 cp /Users/shawnpetros/projects/salazar/demo/counter-spec.md /tmp/counter-spec.md
 
 clear
-echo "$ npm i -g salazar"
+echo "$ npm i -g salazar-cli"
 echo ""
 echo "added 1 package in 2s"
 echo ""

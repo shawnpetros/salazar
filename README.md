@@ -73,10 +73,10 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 
 ```bash
 # Install
-npm i -g salazar
+npm i -g salazar-cli
 
 # Or run directly
-npx salazar
+npx salazar-cli
 
 # Build from a spec
 salazar run my-app-spec.md

@@ -1,6 +1,6 @@
 {
-  "name": "salazar",
-  "version": "2.1.0",
+  "name": "salazar-cli",
+  "version": "1.0.0",
   "description": "Autonomous coding orchestrator. The tool that builds itself.",
   "author": "Shawn Petros",
   "license": "MIT",
