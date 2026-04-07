@@ -61,11 +61,18 @@ Named after the serpent — an ouroboros that eats its own tail. We pointed it a
 ## Quick Start
 
 ```bash
-# Install the Python CLI
-pip install -e ./salazar
+# One-line local install: Python runtime + Ink TUI
+./install.sh
 
-# Configure saved defaults in the built-in TUI
-salazar --config
+# Or manually:
+brew install node pipx
+pipx ensurepath
+npm --prefix cli install
+npm --prefix cli run build
+pipx install --editable /Users/shawnpetros/projects/salazar/salazar --force
+
+# Launch the Ink onboarding TUI
+salazar
 
 # Greenfield — build from a spec
 salazar my-app-spec.md
@@ -207,9 +214,10 @@ Theme: Catppuccin Mocha (mauve/blue/pink accents).
 ## CLI Commands
 
 ```bash
-salazar                     # Launch built-in TUI / onboarding
-salazar --tui               # Reopen the built-in TUI
-salazar --config            # Jump straight to saved defaults
+salazar                     # Launch Ink TUI / onboarding
+salazar --tui               # Reopen the Ink TUI
+salazar config              # Open the Ink config wizard
+salazar history             # Browse run history in the Ink CLI
 salazar <spec.md>           # Build software from spec
 salazar <spec.md> --brownfield
 salazar --version           # 0.1.0
